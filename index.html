@@ -188,6 +188,21 @@
             align-items: center;
         }
 
+        .profile-image {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 3px solid #ffffff;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(255, 255, 255, 0.2);
+        }
+
         .profile-placeholder {
             width: 300px;
             height: 300px;
@@ -199,6 +214,7 @@
             font-size: 1.2rem;
             background: linear-gradient(45deg, #333333, #000000);
             transition: transform 0.3s ease;
+            color: #888888;
         }
 
         .profile-placeholder:hover {
@@ -392,7 +408,7 @@
                         <p>With a keen eye for minimalist aesthetics and a love for clean code, I strive to create work that is both visually striking and technically sound.</p>
                     </div>
                     <div class="about-image">
-                        <img src="ShirayukiRen PfP.jpg" alt="Ren Shirayuki" style="width: 300px; height: 300px; border-radius: 50%; object-fit: cover; border: 3px solid #ffffff;">
+                        <img src="profile.jpg" alt="Ren Shirayuki" class="profile-image">
                     </div>
                 </div>
             </div>
