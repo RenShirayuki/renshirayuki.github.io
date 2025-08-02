@@ -20,17 +20,17 @@
         }
 
         [data-theme="light"] {
-            /* Light mode colors */
-            --bg-primary: #ffffff;
-            --bg-secondary: #f5f5f5;
-            --bg-tertiary: #e0e0e0;
-            --text-primary: #000000;
-            --text-secondary: #333333;
-            --text-muted: #666666;
-            --border-color: #e0e0e0;
-            --particle-color: #000000;
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --shadow-hover: rgba(0, 0, 0, 0.2);
+            /* Light mode colors - soft gray theme */
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #e9ecef;
+            --bg-tertiary: #dee2e6;
+            --text-primary: #212529;
+            --text-secondary: #495057;
+            --text-muted: #6c757d;
+            --border-color: #ced4da;
+            --particle-color: #495057;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --shadow-hover: rgba(0, 0, 0, 0.15);
         }
 
         * {
@@ -56,7 +56,7 @@
         /* Theme Toggle */
         .theme-toggle {
             position: fixed;
-            top: 20px;
+            top: 80px;
             right: 20px;
             z-index: 1001;
             background: var(--bg-tertiary);
@@ -99,7 +99,7 @@
         }
 
         [data-theme="light"] header {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(248, 249, 250, 0.9);
         }
 
         nav {
@@ -445,7 +445,7 @@
             }
 
             .theme-toggle {
-                top: 10px;
+                top: 70px;
                 right: 10px;
                 padding: 8px 12px;
                 font-size: 12px;
@@ -604,9 +604,9 @@
             const isLight = document.body.getAttribute('data-theme') === 'light';
             
             if (window.scrollY > 100) {
-                header.style.background = isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 0, 0, 0.95)';
+                header.style.background = isLight ? 'rgba(248, 249, 250, 0.95)' : 'rgba(0, 0, 0, 0.95)';
             } else {
-                header.style.background = isLight ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)';
+                header.style.background = isLight ? 'rgba(248, 249, 250, 0.9)' : 'rgba(0, 0, 0, 0.9)';
             }
         });
 
