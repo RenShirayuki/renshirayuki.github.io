@@ -170,12 +170,15 @@
         main {
             margin-top: 100px;
             padding: 50px 0;
+            opacity: 0; /* Mulai tidak terlihat */
+            /* ✅ SATU ANIMASI TUNGGAL UNTUK SEMUA KONTEN */
+            animation: fadeInUp 1.2s ease-out 0.5s forwards; 
         }
 
         .projects-header {
             text-align: center;
             margin-bottom: 80px;
-            animation: fadeInUp 1s ease-out;
+            /* ❌ Animasi individual dihapus dari sini */
         }
 
         .projects-header h1 {
@@ -240,7 +243,7 @@
             border: 1px solid var(--border-color);
             cursor: pointer;
             position: relative;
-            animation: puzzleFadeIn 0.8s ease-out;
+            /* ❌ Animasi individual dihapus dari sini */
         }
         
         .project-card:hover {
@@ -382,18 +385,6 @@
             to { text-shadow: 0 0 30px var(--shadow-hover); }
         }
 
-        @keyframes puzzleFadeIn {
-            from { opacity: 0; transform: translateY(20px) scale(0.8); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .project-card:nth-child(1) { animation-delay: 0.1s; }
-        .project-card:nth-child(2) { animation-delay: 0.2s; }
-        .project-card:nth-child(3) { animation-delay: 0.3s; }
-        .project-card:nth-child(4) { animation-delay: 0.4s; }
-        .project-card:nth-child(5) { animation-delay: 0.5s; }
-        .project-card:nth-child(6) { animation-delay: 0.6s; }
-
         /* Responsive */
         @media (max-width: 768px) {
             .projects-header h1 { font-size: 2.5rem; }
@@ -465,16 +456,6 @@
                         <div class="project-links"><a href="#" class="project-link">🔗 Live Demo</a><a href="#" class="project-link">📱 GitHub</a></div>
                     </div>
                 </div>
-                <div class="project-card" data-category="individual">
-                    <div class="project-image">Screenshot will be here</div>
-                    <div class="project-content">
-                        <span class="project-type">Individual</span>
-                        <h3 class="project-title">Task Management App</h3>
-                        <p class="project-description">A productivity app with drag-and-drop functionality, category filtering, and local storage persistence.</p>
-                        <div class="project-tech"><span class="tech-tag">Vanilla JS</span><span class="tech-tag">Local Storage</span><span class="tech-tag">Drag & Drop</span></div>
-                        <div class="project-links"><a href="#" class="project-link">🔗 Live Demo</a><a href="#" class="project-link">📱 GitHub</a></div>
-                    </div>
-                </div>
                 <div class="project-card" data-category="team">
                     <div class="project-image">Screenshot will be here</div>
                     <div class="project-content">
@@ -485,202 +466,161 @@
                         <div class="project-links"><a href="#" class="project-link">🔗 Live Demo</a><a href="#" class="project-link">📱 GitHub</a></div>
                     </div>
                 </div>
-                <div class="project-card" data-category="team">
-                    <div class="project-image">Screenshot will be here</div>
-                    <div class="project-content">
-                        <span class="project-type">Team</span>
-                        <h3 class="project-title">Social Media Dashboard</h3>
-                        <p class="project-description">A comprehensive dashboard for managing multiple social media accounts with analytics and scheduling features. Team of 4 members.</p>
-                        <div class="project-tech"><span class="tech-tag">Vue.js</span><span class="tech-tag">Python</span><span class="tech-tag">PostgreSQL</span><span class="tech-tag">REST API</span></div>
-                        <div class="project-links"><a href="#" class="project-link">🔗 Live Demo</a><a href="#" class="project-link">📱 GitHub</a></div>
-                    </div>
                 </div>
-                <div class="project-card" data-category="team">
-                    <div class="project-image">Screenshot will be here</div>
-                    <div class="project-content">
-                        <span class="project-type">Team</span>
-                        <h3 class="project-title">Learning Management System</h3>
-                        <p class="project-description">An educational platform with course management, video streaming, and progress tracking. Developed with a team of 5 developers.</p>
-                        <div class="project-tech"><span class="tech-tag">Laravel</span><span class="tech-tag">MySQL</span><span class="tech-tag">Video Streaming</span><span class="tech-tag">AWS</span></div>
-                        <div class="project-links"><a href="#" class="project-link">🔗 Live Demo</a><a href="#" class="project-link">📱 GitHub</a></div>
-                    </div>
-                </div>
-            </div>
         </div>
     </main>
 
-    <script>
-        // Theme toggle functionality (TETAP SAMA)
-        function toggleTheme() {
-            const body = document.body;
-            const themeIcon = document.querySelector('.theme-icon');
-            const themeText = document.querySelector('.theme-text');
-            
-            if (body.getAttribute('data-theme') === 'light') {
-                body.removeAttribute('data-theme');
-                themeIcon.textContent = '🌙';
-                themeText.textContent = 'Dark';
-                localStorage.setItem('theme', 'dark');
-            } else {
-                body.setAttribute('data-theme', 'light');
-                themeIcon.textContent = '☀️';
-                themeText.textContent = 'Light';
-                localStorage.setItem('theme', 'light');
+<script>
+    // Theme toggle functionality
+    function toggleTheme() {
+        const body = document.body;
+        const themeIcon = document.querySelector('.theme-icon');
+        const themeText = document.querySelector('.theme-text');
+        
+        if (body.getAttribute('data-theme') === 'light') {
+            body.removeAttribute('data-theme');
+            themeIcon.textContent = '🌙';
+            themeText.textContent = 'Dark';
+            localStorage.setItem('theme', 'dark');
+        } else {
+            body.setAttribute('data-theme', 'light');
+            themeIcon.textContent = '☀️';
+            themeText.textContent = 'Light';
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    // Load saved theme
+    function loadTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const body = document.body;
+        const themeIcon = document.querySelector('.theme-icon');
+        const themeText = document.querySelector('.theme-text');
+        
+        if (savedTheme === 'light') {
+            body.setAttribute('data-theme', 'light');
+            themeIcon.textContent = '☀️';
+            themeText.textContent = 'Light';
+        } else {
+            themeIcon.textContent = '🌙';
+            themeText.textContent = 'Dark';
+        }
+    }
+
+    // Puzzle transition effect
+    function createPuzzlePieces() {
+        const overlay = document.getElementById('puzzleOverlay');
+        overlay.innerHTML = '';
+        
+        const rows = 8;
+        const cols = 12;
+        const pieceWidth = window.innerWidth / cols;
+        const pieceHeight = window.innerHeight / rows;
+        
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                const piece = document.createElement('div');
+                piece.className = 'puzzle-piece';
+                piece.style.width = pieceWidth + 'px';
+                piece.style.height = pieceHeight + 'px';
+                piece.style.left = (col * pieceWidth) + 'px';
+                piece.style.top = (row * pieceHeight) + 'px';
+                
+                const randomX = (Math.random() - 0.5) * 1000 + 'px';
+                const randomY = (Math.random() - 0.5) * 1000 + 'px';
+                const randomRotate = (Math.random() - 0.5) * 720 + 'deg';
+                
+                piece.style.setProperty('--random-x', randomX);
+                piece.style.setProperty('--random-y', randomY);
+                piece.style.setProperty('--random-rotate', randomRotate);
+                
+                const delay = (row * cols + col) * 15;
+                piece.style.transitionDelay = delay + 'ms';
+                
+                overlay.appendChild(piece);
             }
         }
-    
-        // Load saved theme (TETAP SAMA)
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            const body = document.body;
-            const themeIcon = document.querySelector('.theme-icon');
-            const themeText = document.querySelector('.theme-text');
-            
-            if (savedTheme === 'light') {
-                body.setAttribute('data-theme', 'light');
-                themeIcon.textContent = '☀️';
-                themeText.textContent = 'Light';
-            } else {
-                themeIcon.textContent = '🌙';
-                themeText.textContent = 'Dark';
-            }
-        }
-    
-        // Puzzle transition effect (TETAP SAMA)
-        function createPuzzlePieces() {
-            const overlay = document.getElementById('puzzleOverlay');
-            overlay.innerHTML = '';
-            
-            const rows = 8;
-            const cols = 12;
-            const pieceWidth = window.innerWidth / cols;
-            const pieceHeight = window.innerHeight / rows;
-            
-            for (let row = 0; row < rows; row++) {
-                for (let col = 0; col < cols; col++) {
-                    const piece = document.createElement('div');
-                    piece.className = 'puzzle-piece';
-                    piece.style.width = pieceWidth + 'px';
-                    piece.style.height = pieceHeight + 'px';
-                    piece.style.left = (col * pieceWidth) + 'px';
-                    piece.style.top = (row * pieceHeight) + 'px';
-                    
-                    const randomX = (Math.random() - 0.5) * 1000 + 'px';
-                    const randomY = (Math.random() - 0.5) * 1000 + 'px';
-                    const randomRotate = (Math.random() - 0.5) * 720 + 'deg';
-                    
-                    piece.style.setProperty('--random-x', randomX);
-                    piece.style.setProperty('--random-y', randomY);
-                    piece.style.setProperty('--random-rotate', randomRotate);
-                    
-                    const delay = (row * cols + col) * 15;
-                    piece.style.transitionDelay = delay + 'ms';
-                    
-                    overlay.appendChild(piece);
-                }
-            }
-        }
-    
-        function puzzleTransition(event, url) {
-            event.preventDefault();
-            const overlay = document.getElementById('puzzleOverlay');
-            createPuzzlePieces();
-            const pieces = overlay.querySelectorAll('.puzzle-piece');
-            overlay.style.display = 'block';
-            
-            setTimeout(() => {
-                pieces.forEach(piece => {
-                    piece.classList.add('animate-in');
-                });
-            }, 50);
-            
-            setTimeout(() => {
-                window.location.href = url;
-            }, 2300);
-        }
-    
-        // Project filtering (TETAP SAMA)
-        function initProjectFilter() {
-            const filterBtns = document.querySelectorAll('.filter-btn');
-            const projectCards = document.querySelectorAll('.project-card');
-            
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const filter = btn.getAttribute('data-filter');
-                    filterBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    projectCards.forEach(card => {
-                        if (filter === 'all' || card.getAttribute('data-category') === filter) {
-                            card.style.display = 'block';
-                            card.style.animation = 'puzzleFadeIn 0.8s ease-out';
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    });
-                });
-            });
-        }
-    
-        // Header background on scroll (TETAP SAMA)
-        window.addEventListener('scroll', () => {
-            const header = document.querySelector('header');
-            const isLight = document.body.getAttribute('data-theme') === 'light';
-            
-            if (window.scrollY > 100) {
-                header.style.background = isLight ? 'rgba(248, 249, 250, 0.95)' : 'rgba(0, 0, 0, 0.95)';
-            } else {
-                header.style.background = isLight ? 'rgba(248, 249, 250, 0.9)' : 'rgba(0, 0, 0, 0.9)';
-            }
-        });
-    
-        // ==========================================================
-        // BAGIAN INI YANG BERUBAH TOTAL (LOGIKA SAAT HALAMAN DIMUAT)
-        // ==========================================================
-        document.addEventListener('DOMContentLoaded', () => {
-            loadTheme();
-            initProjectFilter();
-            
-            const overlay = document.getElementById('puzzleOverlay');
-            const mainContent = document.querySelector('main');
-            
-            // Buat kepingan puzzle untuk animasi keluar
-            createPuzzlePieces();
-            const pieces = overlay.querySelectorAll('.puzzle-piece');
-            
-            // 1. Atur kondisi awal: layar tertutup puzzle
-            overlay.style.display = 'block';
+    }
+
+    function puzzleTransition(event, url) {
+        event.preventDefault();
+        const overlay = document.getElementById('puzzleOverlay');
+        createPuzzlePieces();
+        const pieces = overlay.querySelectorAll('.puzzle-piece');
+        overlay.style.display = 'block';
+        
+        setTimeout(() => {
             pieces.forEach(piece => {
-                // Langsung set ke posisi tertutup tanpa animasi
-                piece.style.transition = 'none'; // Matikan transisi sementara
-                piece.style.opacity = '1';
-                piece.style.transform = 'scale(1)';
+                piece.classList.add('animate-in');
             });
-    
-            // Paksa browser untuk render kondisi awal ini
-            // Menggunakan requestAnimationFrame untuk memastikan DOM update
-            requestAnimationFrame(() => {
-                // 2. Aktifkan kembali transisi dan picu animasi keluar
-                setTimeout(() => {
-                    pieces.forEach(piece => {
-                        // Aktifkan lagi transisi yang ada di CSS
-                        piece.style.transition = ''; 
-                        // Tambah class untuk animasi keluar
-                        piece.classList.add('animate-out');
-                    });
-                }, 20); // Delay kecil untuk memastikan transisi aktif
-    
-                // 3. Picu animasi fade-in untuk konten utama
-                setTimeout(() => {
-                    mainContent.style.opacity = '1';
-                    mainContent.style.transform = 'translateY(0)';
-                }, 400); // Konten muncul setelah 0.4 detik
-    
-                // 4. Sembunyikan overlay setelah semua animasi selesai
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                }, 2300); // Waktu harus cukup untuk animasi terlama
+        }, 50);
+        
+        setTimeout(() => {
+            window.location.href = url;
+        }, 2300);
+    }
+
+    // Project filtering
+    function initProjectFilter() {
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const projectCards = document.querySelectorAll('.project-card');
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.getAttribute('data-filter');
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                projectCards.forEach(card => {
+                    if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
             });
         });
+    }
+
+    // Header background on scroll
+    window.addEventListener('scroll', () => {
+        const header = document.querySelector('header');
+        const isLight = document.body.getAttribute('data-theme') === 'light';
+        
+        if (window.scrollY > 100) {
+            header.style.background = isLight ? 'rgba(248, 249, 250, 0.95)' : 'rgba(0, 0, 0, 0.95)';
+        } else {
+            header.style.background = isLight ? 'rgba(248, 249, 250, 0.9)' : 'rgba(0, 0, 0, 0.9)';
+        }
+    });
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadTheme();
+        initProjectFilter();
+        
+        const overlay = document.getElementById('puzzleOverlay');
+        createPuzzlePieces();
+        const pieces = overlay.querySelectorAll('.puzzle-piece');
+        
+        // Atur kondisi awal layar tertutup
+        overlay.style.display = 'block';
+        pieces.forEach(piece => {
+            piece.style.opacity = '1';
+            piece.style.transform = 'scale(1)';
+        });
+
+        // Picu animasi puzzle keluar setelah jeda singkat
+        setTimeout(() => {
+            pieces.forEach(piece => {
+                piece.classList.add('animate-out');
+            });
+        }, 50);
+
+        // Sembunyikan overlay setelah animasi puzzle selesai
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 2300);
+    });
     </script>
 </body>
 </html>
