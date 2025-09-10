@@ -6,80 +6,19 @@
     <title>Projects - Ren Shirayuki</title>
     <style>
         :root {
-            --bg-primary: #000000;
-            --bg-secondary: #1a1a1a;
-            --bg-tertiary: #333333;
-            --text-primary: #ffffff;
-            --text-secondary: #cccccc;
-            --text-muted: #888888;
-            --border-color: #333333;
-            --shadow-color: rgba(255, 255, 255, 0.1);
-            --shadow-hover: rgba(255, 255, 255, 0.2);
+            --bg-primary: #000000; --bg-secondary: #1a1a1a; --bg-tertiary: #333333; --text-primary: #ffffff; --text-secondary: #cccccc; --text-muted: #888888; --border-color: #333333; --shadow-color: rgba(255, 255, 255, 0.1); --shadow-hover: rgba(255, 255, 255, 0.2);
         }
-
         [data-theme="light"] {
-            --bg-primary: #f8f9fa;
-            --bg-secondary: #e9ecef;
-            --bg-tertiary: #dee2e6;
-            --text-primary: #212529;
-            --text-secondary: #495057;
-            --text-muted: #6c757d;
-            --border-color: #ced4da;
-            --shadow-color: rgba(0, 0, 0, 0.08);
-            --shadow-hover: rgba(0, 0, 0, 0.15);
+            --bg-primary: #f8f9fa; --bg-secondary: #e9ecef; --bg-tertiary: #dee2e6; --text-primary: #212529; --text-secondary: #495057; --text-muted: #6c757d; --border-color: #ced4da; --shadow-color: rgba(0, 0, 0, 0.08); --shadow-hover: rgba(0, 0, 0, 0.15);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-            color: var(--text-primary);
-            overflow-x: hidden;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            min-height: 100vh;
-        }
-
-        .puzzle-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10000;
-            pointer-events: none;
-        }
-
-        .puzzle-piece {
-            position: absolute;
-            background: var(--bg-primary);
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0;
-        }
-
-        .puzzle-piece.animate-in {
-            opacity: 1;
-            transform: translateX(0) translateY(0) rotate(0deg) scale(1);
-        }
-
-        .puzzle-piece.animate-out {
-            opacity: 0;
-            transform: translateX(var(--random-x)) translateY(var(--random-y)) rotate(var(--random-rotate)) scale(0.5);
-        }
-        
-        /* PENAMBAHAN KELAS ANIMASI BARU */
-        .puzzle-piece.animate-out-up {
-            opacity: 0;
-            transform: translateY(-100vh) scale(0.8); /* Geser ke atas */
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        /* Sisanya adalah CSS yang sama persis seperti sebelumnya */
+        body { font-family: 'Arial', sans-serif; background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%); color: var(--text-primary); overflow-x: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); min-height: 100vh; }
+        .puzzle-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; pointer-events: none; }
+        .puzzle-piece { position: absolute; background: var(--bg-primary); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0; }
+        .puzzle-piece.animate-in { opacity: 1; transform: translateX(0) translateY(0) rotate(0deg) scale(1); }
+        .puzzle-piece.animate-out { opacity: 0; transform: translateX(var(--random-x)) translateY(var(--random-y)) rotate(var(--random-rotate)) scale(0.5); }
+        .puzzle-piece.animate-out-up { opacity: 0; transform: translateY(-100vh) scale(0.8); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
         .theme-toggle { position: fixed; top: 80px; right: 20px; z-index: 1001; background: var(--bg-tertiary); border: 2px solid var(--border-color); border-radius: 50px; padding: 10px 15px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; color: var(--text-primary); font-size: 14px; font-weight: bold; }
         .theme-toggle:hover { transform: scale(1.05); box-shadow: 0 5px 15px var(--shadow-color); }
         header { position: fixed; top: 0; width: 100%; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); z-index: 1000; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -161,6 +100,8 @@
         </div>
     </main>
     <script>
+        // --- BLOK SCRIPT LENGKAP DENGAN PERBAIKAN FINAL ---
+
         function toggleTheme() {
             const body = document.body;
             const themeIcon = document.querySelector('.theme-icon');
@@ -177,6 +118,7 @@
                 localStorage.setItem('theme', 'light');
             }
         }
+
         function loadTheme() {
             const savedTheme = localStorage.getItem('theme');
             const body = document.body;
@@ -191,6 +133,7 @@
                 themeText.textContent = 'Dark';
             }
         }
+
         function createPuzzlePieces() {
             const overlay = document.getElementById('puzzleOverlay');
             overlay.innerHTML = '';
@@ -201,10 +144,10 @@
                 for (let col = 0; col < cols; col++) {
                     const piece = document.createElement('div');
                     piece.className = 'puzzle-piece';
-                    piece.style.width = pieceWidth + 'px';
-                    piece.style.height = pieceHeight + 'px';
-                    piece.style.left = (col * pieceWidth) + 'px';
-                    piece.style.top = (row * pieceHeight) + 'px';
+                    piece.style.width = `${pieceWidth}px`;
+                    piece.style.height = `${pieceHeight}px`;
+                    piece.style.left = `${col * pieceWidth}px`;
+                    piece.style.top = `${row * pieceHeight}px`;
                     const randomX = (Math.random() - 0.5) * 1000 + 'px';
                     const randomY = (Math.random() - 0.5) * 1000 + 'px';
                     const randomRotate = (Math.random() - 0.5) * 720 + 'deg';
@@ -212,11 +155,12 @@
                     piece.style.setProperty('--random-y', randomY);
                     piece.style.setProperty('--random-rotate', randomRotate);
                     const delay = (row * cols + col) * 15;
-                    piece.style.transitionDelay = delay + 'ms';
+                    piece.style.transitionDelay = `${delay}ms`;
                     overlay.appendChild(piece);
                 }
             }
         }
+
         function puzzleTransition(event, url) {
             event.preventDefault();
             const overlay = document.getElementById('puzzleOverlay');
@@ -224,22 +168,23 @@
             const pieces = overlay.querySelectorAll('.puzzle-piece');
             overlay.style.display = 'block';
             setTimeout(() => {
-                pieces.forEach(piece => { piece.classList.add('animate-in'); });
+                pieces.forEach(piece => piece.classList.add('animate-in'));
             }, 50);
             setTimeout(() => {
                 window.location.href = url;
             }, 2300);
         }
+
         function initProjectFilter() {
             const filterBtns = document.querySelectorAll('.filter-btn');
             const projectCards = document.querySelectorAll('.project-card');
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    const filter = btn.getAttribute('data-filter');
+                    const filter = btn.dataset.filter;
                     filterBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     projectCards.forEach(card => {
-                        if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                        if (filter === 'all' || card.dataset.category === filter) {
                             card.style.display = 'block';
                             card.style.animation = 'puzzleFadeIn 0.8s ease-out';
                         } else {
@@ -249,6 +194,7 @@
                 });
             });
         }
+
         window.addEventListener('scroll', () => {
             const header = document.querySelector('header');
             const isLight = document.body.getAttribute('data-theme') === 'light';
@@ -258,23 +204,40 @@
                 header.style.background = isLight ? 'rgba(248, 249, 250, 0.9)' : 'rgba(0, 0, 0, 0.9)';
             }
         });
+
+        // =========================================================
+        // LOGIKA BARU YANG SUDAH DIPERBAIKI UNTUK ENTRANCE ANIMATION
+        // =========================================================
         document.addEventListener('DOMContentLoaded', () => {
             loadTheme();
             initProjectFilter();
+
             const overlay = document.getElementById('puzzleOverlay');
+            
+            // Tampilkan overlay dan buat puzzlenya
+            overlay.style.display = 'block';
             createPuzzlePieces();
             const pieces = overlay.querySelectorAll('.puzzle-piece');
-            overlay.style.display = 'block';
+
+            // 1. Matikan transisi sementara dan langsung buat semua piece terlihat
             pieces.forEach(piece => {
+                piece.style.transition = 'none';
                 piece.style.opacity = '1';
                 piece.style.transform = 'scale(1)';
             });
-            setTimeout(() => {
-                pieces.forEach(piece => {
-                    // PERUBAHAN UTAMA DI SINI
-                    piece.classList.add('animate-out-up');
-                });
-            }, 50);
+
+            // 2. PAKSA BROWSER MENGGAMBAR (ini triknya)
+            // Dengan membaca properti 'offsetHeight', kita memaksa browser menyelesaikan
+            // semua perubahan style di atas sebelum melanjutkan ke baris berikutnya.
+            overlay.offsetHeight;
+
+            // 3. Nyalakan lagi transisi dan jalankan animasi 'menghilang ke atas'
+            pieces.forEach(piece => {
+                piece.style.transition = ''; // Kembalikan ke style CSS awal
+                piece.classList.add('animate-out-up');
+            });
+            
+            // Sembunyikan overlay setelah animasi selesai
             setTimeout(() => {
                 overlay.style.display = 'none';
             }, 2300);
