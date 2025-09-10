@@ -328,25 +328,7 @@
             transform: scale(1.05);
             box-shadow: 0 15px 40px var(--shadow-hover);
         }
-
-        .profile-placeholder {
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            border: 3px solid var(--text-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            background: linear-gradient(45deg, var(--bg-tertiary), var(--bg-primary));
-            transition: transform 0.3s ease;
-            color: var(--text-muted);
-        }
-
-        .profile-placeholder:hover {
-            transform: scale(1.05);
-        }
-
+        
         /* Skills Section */
         .skills {
             padding: 100px 0;
@@ -495,15 +477,9 @@
                 transform: scale(0);
                 opacity: 0.8;
             }
-            25% {
-                opacity: 0.6;
-            }
-            50% {
-                opacity: 0.4;
-            }
-            75% {
-                opacity: 0.2;
-            }
+            25% { opacity: 0.6; }
+            50% { opacity: 0.4; }
+            75% { opacity: 0.2; }
             100% {
                 transform: scale(3.5);
                 opacity: 0;
@@ -548,16 +524,13 @@
     </style>
 </head>
 <body>
-    <!-- Puzzle Transition Overlay -->
     <div class="puzzle-overlay" id="puzzleOverlay"></div>
 
-    <!-- Theme Toggle Button -->
     <div class="theme-toggle" onclick="toggleTheme()">
         <span class="theme-icon">🌙</span>
         <span class="theme-text">Dark</span>
     </div>
 
-    <!-- Theme transition overlay -->
     <div class="theme-transition"></div>
 
     <header>
@@ -662,7 +635,7 @@
             // Small delay for smoother effect
             setTimeout(() => {
                 if (body.getAttribute('data-theme') === 'light') {
-                    body.setAttribute('data-theme', 'dark');
+                    // PERBAIKAN: Cukup hapus atribut untuk kembali ke mode gelap default
                     body.removeAttribute('data-theme');
                     themeIcon.textContent = '🌙';
                     themeText.textContent = 'Dark';
@@ -782,11 +755,6 @@
         });
 
         // Create additional particles
-        for (let i = 0; i < 10; i++) {
-            createParticle();
-        }
-
-        // Add more floating particles dynamically
         function createParticle() {
             const particle = document.createElement('div');
             particle.className = 'particle';
@@ -796,6 +764,9 @@
             particle.style.animationDelay = Math.random() * 6 + 's';
             particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
             document.querySelector('.particles').appendChild(particle);
+        }
+        for (let i = 0; i < 10; i++) {
+            createParticle();
         }
     </script>
 </body>
