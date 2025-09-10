@@ -170,8 +170,9 @@
         main {
             margin-top: 100px;
             padding: 50px 0;
-            opacity: 0; /* Start invisible */
-            animation: fadeInContent 1.5s ease-out 0.5s forwards; /* Fade in after a 0.5s delay */
+            opacity: 0; /* Mulai dengan transparan */
+            transform: translateY(20px); /* Mulai sedikit di bawah */
+            transition: opacity 1.5s ease-out, transform 1.5s ease-out; /* Animasikan saat properti berubah */
         }
 
         .projects-header {
