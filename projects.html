@@ -509,7 +509,7 @@
         </div>
     </main>
 
-    <script>
+<script>
         // Theme toggle functionality
         function toggleTheme() {
             const body = document.body;
@@ -517,7 +517,6 @@
             const themeText = document.querySelector('.theme-text');
             
             if (body.getAttribute('data-theme') === 'light') {
-                // PERBAIKAN: Cukup hapus atribut untuk kembali ke mode gelap default
                 body.removeAttribute('data-theme');
                 themeIcon.textContent = '🌙';
                 themeText.textContent = 'Dark';
@@ -566,7 +565,6 @@
                     piece.style.left = (col * pieceWidth) + 'px';
                     piece.style.top = (row * pieceHeight) + 'px';
                     
-                    // Random animation values
                     const randomX = (Math.random() - 0.5) * 1000 + 'px';
                     const randomY = (Math.random() - 0.5) * 1000 + 'px';
                     const randomRotate = (Math.random() - 0.5) * 720 + 'deg';
@@ -575,9 +573,8 @@
                     piece.style.setProperty('--random-y', randomY);
                     piece.style.setProperty('--random-rotate', randomRotate);
                     
-                    // Delay untuk setiap piece (EXIT)
-                    const exitDelay = (row * cols + col) * 15;
-                    piece.style.transitionDelay = exitDelay + 'ms';
+                    const delay = (row * cols + col) * 15;
+                    piece.style.transitionDelay = delay + 'ms';
                     
                     overlay.appendChild(piece);
                 }
@@ -586,24 +583,20 @@
 
         function puzzleTransition(event, url) {
             event.preventDefault();
-            
             const overlay = document.getElementById('puzzleOverlay');
             createPuzzlePieces();
             const pieces = overlay.querySelectorAll('.puzzle-piece');
-            
             overlay.style.display = 'block';
             
-            // Animate pieces in (menutupi layar)
             setTimeout(() => {
                 pieces.forEach(piece => {
                     piece.classList.add('animate-in');
                 });
             }, 50);
             
-            // Pindah halaman
             setTimeout(() => {
                 window.location.href = url;
-            }, 1200);
+            }, 2300); // <- Disesuaikan juga di sini
         }
 
         // Project filtering
@@ -614,10 +607,8 @@
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const filter = btn.getAttribute('data-filter');
-                    
                     filterBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    
                     projectCards.forEach(card => {
                         if (filter === 'all' || card.getAttribute('data-category') === filter) {
                             card.style.display = 'block';
@@ -642,43 +633,32 @@
             }
         });
 
-        // =========================================================
-        // PERBAIKAN UTAMA: LOGIKA TRANSISI SAAT HALAMAN DIMUAT
-        // =========================================================
+        // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
             loadTheme();
             initProjectFilter();
             
             const overlay = document.getElementById('puzzleOverlay');
-            
-            // 1. Buat puzzle pieces untuk efek 'reveal' (membuka)
             createPuzzlePieces();
             const pieces = overlay.querySelectorAll('.puzzle-piece');
             
-            // 2. Atur agar setiap piece langsung terlihat untuk menutupi layar.
-            // Ini akan menyambung transisi dari halaman sebelumnya dengan mulus.
             overlay.style.display = 'block';
             pieces.forEach(piece => {
                 piece.style.opacity = '1';
                 piece.style.transform = 'scale(1)';
-                // Atur delay untuk animasi KELUAR
-                const row = Math.floor(Array.from(pieces).indexOf(piece) / 12);
-                const col = Array.from(pieces).indexOf(piece) % 12;
-                piece.style.transitionDelay = (row * 12 + col) * 15 + 'ms';
             });
 
-            // 3. Setelah browser siap, tambahkan class 'animate-out' 
-            // agar semua piece terbang keluar, membuka konten halaman.
             setTimeout(() => {
                 pieces.forEach(piece => {
                     piece.classList.add('animate-out');
                 });
             }, 50);
 
-            // 4. Sembunyikan overlay setelah animasi diperkirakan selesai.
+            // PERBAIKAN KEDUA DI SINI
+            // Sesuaikan waktu untuk menyembunyikan overlay
             setTimeout(() => {
                 overlay.style.display = 'none';
-            }, 2000); // 2 detik adalah waktu yang aman
+            }, 2300);
         });
     </script>
 </body>
