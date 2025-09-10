@@ -70,6 +70,35 @@
             background: radial-gradient(circle at center, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.12) 30%, rgba(0, 0, 0, 0.04) 60%, transparent 100%);
         }
 
+        /* Puzzle Transition Overlay */
+        .puzzle-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            pointer-events: none;
+            display: none;
+        }
+
+        .puzzle-piece {
+            position: absolute;
+            background: var(--bg-primary);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+        }
+
+        .puzzle-piece.animate-in {
+            opacity: 1;
+            transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+        }
+
+        .puzzle-piece.animate-out {
+            opacity: 0;
+            transform: translateX(var(--random-x)) translateY(var(--random-y)) rotate(var(--random-rotate)) scale(0.5);
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -519,6 +548,9 @@
     </style>
 </head>
 <body>
+    <!-- Puzzle Transition Overlay -->
+    <div class="puzzle-overlay" id="puzzleOverlay"></div>
+
     <!-- Theme Toggle Button -->
     <div class="theme-toggle" onclick="toggleTheme()">
         <span class="theme-icon">🌙</span>
@@ -552,7 +584,7 @@
             <div class="hero-content">
                 <h1>REN SHIRAYUKI</h1>
                 <p>Creative Developer & Digital Artist</p>
-                <a href="#about" class="cta-button">Discover More</a>
+                <a href="projects.html" class="cta-button" onclick="puzzleTransition(event, 'projects.html')">Discover More</a>
             </div>
         </section>
 
@@ -664,6 +696,65 @@
         // Load theme on page load
         document.addEventListener('DOMContentLoaded', loadTheme);
 
+        // Puzzle transition effect
+        function createPuzzlePieces() {
+            const overlay = document.getElementById('puzzleOverlay');
+            overlay.innerHTML = '';
+            
+            const rows = 8;
+            const cols = 12;
+            const pieceWidth = window.innerWidth / cols;
+            const pieceHeight = window.innerHeight / rows;
+            
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'puzzle-piece';
+                    piece.style.width = pieceWidth + 'px';
+                    piece.style.height = pieceHeight + 'px';
+                    piece.style.left = (col * pieceWidth) + 'px';
+                    piece.style.top = (row * pieceHeight) + 'px';
+                    
+                    // Random animation values
+                    const randomX = (Math.random() - 0.5) * 1000 + 'px';
+                    const randomY = (Math.random() - 0.5) * 1000 + 'px';
+                    const randomRotate = (Math.random() - 0.5) * 720 + 'deg';
+                    
+                    piece.style.setProperty('--random-x', randomX);
+                    piece.style.setProperty('--random-y', randomY);
+                    piece.style.setProperty('--random-rotate', randomRotate);
+                    
+                    // Delay for each piece
+                    const delay = (row * cols + col) * 15;
+                    piece.style.transitionDelay = delay + 'ms';
+                    
+                    overlay.appendChild(piece);
+                }
+            }
+        }
+
+        function puzzleTransition(event, url) {
+            event.preventDefault();
+            
+            createPuzzlePieces();
+            const pieces = document.querySelectorAll('.puzzle-piece');
+            
+            // Show overlay
+            document.getElementById('puzzleOverlay').style.display = 'block';
+            
+            // Animate pieces in
+            setTimeout(() => {
+                pieces.forEach(piece => {
+                    piece.classList.add('animate-in');
+                });
+            }, 50);
+            
+            // Transition to new page
+            setTimeout(() => {
+                window.location.href = url;
+            }, 1200);
+        }
+
         // Smooth scrolling for navigation links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -690,6 +781,11 @@
             }
         });
 
+        // Create additional particles
+        for (let i = 0; i < 10; i++) {
+            createParticle();
+        }
+
         // Add more floating particles dynamically
         function createParticle() {
             const particle = document.createElement('div');
@@ -700,11 +796,6 @@
             particle.style.animationDelay = Math.random() * 6 + 's';
             particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
             document.querySelector('.particles').appendChild(particle);
-        }
-
-        // Create additional particles
-        for (let i = 0; i < 10; i++) {
-            createParticle();
         }
     </script>
 </body>
