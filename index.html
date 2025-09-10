@@ -1,802 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ren Shirayuki</title>
-    <style>
-        :root {
-            /* Dark mode colors (default) */
-            --bg-primary: #000000;
-            --bg-secondary: #1a1a1a;
-            --bg-tertiary: #333333;
-            --text-primary: #ffffff;
-            --text-secondary: #cccccc;
-            --text-muted: #888888;
-            --border-color: #333333;
-            --particle-color: #ffffff;
-            --shadow-color: rgba(255, 255, 255, 0.1);
-            --shadow-hover: rgba(255, 255, 255, 0.2);
-        }
-
-        [data-theme="light"] {
-            /* Light mode colors - soft gray theme */
-            --bg-primary: #f8f9fa;
-            --bg-secondary: #e9ecef;
-            --bg-tertiary: #dee2e6;
-            --text-primary: #212529;
-            --text-secondary: #495057;
-            --text-muted: #6c757d;
-            --border-color: #ced4da;
-            --particle-color: #495057;
-            --shadow-color: rgba(0, 0, 0, 0.08);
-            --shadow-hover: rgba(0, 0, 0, 0.15);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-            color: var(--text-primary);
-            overflow-x: hidden;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Theme transition overlay */
-        .theme-transition {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.15) 30%, rgba(255, 255, 255, 0.05) 60%, transparent 100%);
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .theme-transition.active {
-            opacity: 1;
-            animation: themeRipple 1.6s ease-out;
-        }
-
-        [data-theme="light"] .theme-transition {
-            background: radial-gradient(circle at center, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.12) 30%, rgba(0, 0, 0, 0.04) 60%, transparent 100%);
-        }
-
-        /* Puzzle Transition Overlay */
-        .puzzle-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10000;
-            pointer-events: none;
-            display: none;
-        }
-
-        .puzzle-piece {
-            position: absolute;
-            background: var(--bg-primary);
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0;
-        }
-
-        .puzzle-piece.animate-in {
-            opacity: 1;
-            transform: translateX(0) translateY(0) rotate(0deg) scale(1);
-        }
-
-        .puzzle-piece.animate-out {
-            opacity: 0;
-            transform: translateX(var(--random-x)) translateY(var(--random-y)) rotate(var(--random-rotate)) scale(0.5);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Theme Toggle */
-        .theme-toggle {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 1001;
-            background: var(--bg-tertiary);
-            border: 2px solid var(--border-color);
-            border-radius: 50px;
-            padding: 10px 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-primary);
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px var(--shadow-color);
-        }
-
-        .theme-icon {
-            font-size: 16px;
-            transition: transform 0.3s ease;
-        }
-
-        [data-theme="light"] .theme-toggle .theme-icon {
-            transform: rotate(180deg);
-        }
-
-        /* Header */
-        header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        [data-theme="light"] header {
-            background: rgba(248, 249, 250, 0.9);
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            background: linear-gradient(45deg, var(--text-primary), var(--text-secondary));
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        .nav-links a {
-            color: var(--text-primary);
-            text-decoration: none;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--text-primary);
-            transition: width 0.3s ease;
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        /* Hero Section */
-        .hero {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            position: relative;
-        }
-
-        .hero-content {
-            z-index: 2;
-            animation: fadeInUp 1s ease-out;
-        }
-
-        .hero h1 {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(45deg, var(--text-primary), var(--text-muted));
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            opacity: 0.8;
-            color: var(--text-primary);
-        }
-
-        .cta-button {
-            display: inline-block;
-            padding: 12px 30px;
-            background: transparent;
-            border: 2px solid var(--text-primary);
-            color: var(--text-primary);
-            text-decoration: none;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .cta-button:hover {
-            background: var(--text-primary);
-            color: var(--bg-primary);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px var(--shadow-hover);
-        }
-
-        /* Floating Particles */
-        .particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .particle {
-            position: absolute;
-            background: var(--particle-color);
-            border-radius: 50%;
-            opacity: 0.1;
-            animation: float 6s ease-in-out infinite;
-            transition: background 0.3s ease;
-        }
-
-        .particle:nth-child(1) { width: 4px; height: 4px; left: 20%; animation-delay: 0s; }
-        .particle:nth-child(2) { width: 6px; height: 6px; left: 40%; animation-delay: 2s; }
-        .particle:nth-child(3) { width: 3px; height: 3px; left: 60%; animation-delay: 4s; }
-        .particle:nth-child(4) { width: 5px; height: 5px; left: 80%; animation-delay: 1s; }
-        .particle:nth-child(5) { width: 4px; height: 4px; left: 10%; animation-delay: 3s; }
-
-        /* About Section */
-        .about {
-            padding: 100px 0;
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .about-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-        }
-
-        .about-text h2 {
-            font-size: 3rem;
-            margin-bottom: 2rem;
-            color: var(--text-primary);
-            transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .about-text p {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            opacity: 0.8;
-            margin-bottom: 1.5rem;
-            color: var(--text-primary);
-            transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .about-image {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .profile-image {
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            border: 3px solid var(--text-primary);
-            object-fit: cover;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 30px var(--shadow-color);
-        }
-
-        .profile-image:hover {
-            transform: scale(1.05);
-            box-shadow: 0 15px 40px var(--shadow-hover);
-        }
-
-        .profile-placeholder {
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            border: 3px solid var(--text-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            background: linear-gradient(45deg, var(--bg-tertiary), var(--bg-primary));
-            transition: transform 0.3s ease;
-            color: var(--text-muted);
-        }
-
-        .profile-placeholder:hover {
-            transform: scale(1.05);
-        }
-
-        /* Skills Section */
-        .skills {
-            padding: 100px 0;
-            background: var(--bg-primary);
-            transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .skills h2 {
-            text-align: center;
-            font-size: 3rem;
-            margin-bottom: 3rem;
-            color: var(--text-primary);
-            transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-        }
-
-        .skill-card {
-            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
-            padding: 2rem;
-            border-radius: 10px;
-            text-align: center;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid var(--border-color);
-        }
-
-        .skill-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--text-primary);
-        }
-
-        .skill-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-            transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .skill-card p {
-            opacity: 0.8;
-            line-height: 1.6;
-            color: var(--text-primary);
-            transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Contact Section */
-        .contact {
-            padding: 100px 0;
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
-            text-align: center;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .contact h2 {
-            font-size: 3rem;
-            margin-bottom: 2rem;
-            color: var(--text-primary);
-            transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .contact p {
-            font-size: 1.2rem;
-            margin-bottom: 3rem;
-            opacity: 0.8;
-            color: var(--text-primary);
-            transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-        }
-
-        .social-link {
-            display: inline-block;
-            padding: 15px;
-            border: 2px solid var(--text-primary);
-            border-radius: 50%;
-            color: var(--text-primary);
-            text-decoration: none;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .social-link:hover {
-            background: var(--text-primary);
-            color: var(--bg-primary);
-            transform: translateY(-5px);
-        }
-
-        /* Footer */
-        footer {
-            background: var(--bg-primary);
-            text-align: center;
-            padding: 2rem;
-            border-top: 1px solid var(--border-color);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        footer p {
-            color: var(--text-primary);
-            transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 20px var(--shadow-color);
-            }
-            to {
-                text-shadow: 0 0 30px var(--shadow-hover);
-            }
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px) rotate(0deg);
-            }
-            50% {
-                transform: translateY(-20px) rotate(180deg);
-            }
-        }
-
-        @keyframes themeRipple {
-            0% {
-                transform: scale(0);
-                opacity: 0.8;
-            }
-            25% {
-                opacity: 0.6;
-            }
-            50% {
-                opacity: 0.4;
-            }
-            75% {
-                opacity: 0.2;
-            }
-            100% {
-                transform: scale(3.5);
-                opacity: 0;
-            }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-            
-            .about-content {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-            
-            .nav-links {
-                gap: 1.5rem;
-                font-size: 0.9rem;
-            }
-            
-            .skills-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .theme-toggle {
-                top: 70px;
-                right: 10px;
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-
-            nav {
-                padding: 1rem 1rem;
-            }
-
-            .logo {
-                font-size: 1.3rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ren Shirayuki - Portfolio</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+      transition: all 0.5s ease;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 1rem 2rem;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+
+    nav ul li a {
+      color: #fff;
+      text-decoration: none;
+      position: relative;
+    }
+
+    nav ul li a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #fff;
+      transition: width 0.3s ease;
+    }
+
+    nav ul li a:hover::after {
+      width: 100%;
+    }
+
+    main {
+      padding: 150px 20px 50px;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    p {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      color: #cccccc;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 2rem;
+      padding: 0.8rem 2rem;
+      border: 2px solid #fff;
+      border-radius: 30px;
+      color: #fff;
+      text-decoration: none;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .btn:hover {
+      background: #fff;
+      color: #000;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid #333;
+      margin-top: 4rem;
+    }
+
+    /* Puzzle overlay */
+    .puzzle-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10000;
+      pointer-events: none;
+      display: none;
+    }
+
+    .puzzle-piece {
+      position: absolute;
+      background: #000;
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+    }
+
+    .puzzle-piece.animate-in {
+      opacity: 1;
+      transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+    }
+
+    .puzzle-piece.animate-out {
+      opacity: 0;
+      transform: translateX(var(--random-x)) translateY(var(--random-y)) rotate(var(--random-rotate)) scale(0.5);
+    }
+  </style>
 </head>
 <body>
-    <!-- Puzzle Transition Overlay -->
-    <div class="puzzle-overlay" id="puzzleOverlay"></div>
+  <!-- Puzzle Transition Overlay -->
+  <div class="puzzle-overlay" id="puzzleOverlay"></div>
 
-    <!-- Theme Toggle Button -->
-    <div class="theme-toggle" onclick="toggleTheme()">
-        <span class="theme-icon">🌙</span>
-        <span class="theme-text">Dark</span>
-    </div>
+  <header>
+    <div class="logo">REN SHIRAYUKI</div>
+    <nav>
+      <ul>
+        <li><a href="index.html" onclick="puzzleTransition(event, 'index.html')">Home</a></li>
+        <li><a href="projects.html" onclick="puzzleTransition(event, 'projects.html')">Projects</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <!-- Theme transition overlay -->
-    <div class="theme-transition"></div>
+  <main>
+    <h1>Welcome, I’m Ren Shirayuki</h1>
+    <p>A passionate developer and designer, building sleek digital experiences with creativity and precision.</p>
+    <a href="projects.html" class="btn" onclick="puzzleTransition(event, 'projects.html')">Discover More</a>
+  </main>
 
-    <header>
-        <nav>
-            <div class="logo">REN SHIRAYUKI</div>
-            <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#skills">Skills</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+  <footer>
+    <p>&copy; 2025 Ren Shirayuki. All rights reserved.</p>
+  </footer>
 
-    <main>
-        <section class="hero" id="home">
-            <div class="particles">
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-                <div class="particle"></div>
-            </div>
-            <div class="hero-content">
-                <h1>REN SHIRAYUKI</h1>
-                <p>Creative Developer & Digital Artist</p>
-                <a href="projects.html" class="cta-button" onclick="puzzleTransition(event, 'projects.html')">Discover More</a>
-            </div>
-        </section>
+  <script>
+    function createPuzzlePieces() {
+      const overlay = document.getElementById('puzzleOverlay');
+      overlay.innerHTML = '';
 
-        <section class="about" id="about">
-            <div class="container">
-                <div class="about-content">
-                    <div class="about-text">
-                        <h2>About Me</h2>
-                        <p>Hello! I'm Ren Shirayuki, a passionate creative developer who loves bringing digital ideas to life. I specialize in creating beautiful, functional experiences that bridge the gap between design and technology.</p>
-                        <p>With a keen eye for minimalist aesthetics and a love for clean code, I strive to create work that is both visually striking and technically sound.</p>
-                    </div>
-                    <div class="about-image">
-                       <img src="https://raw.githubusercontent.com/RenShirayuki/renshirayuki.github.io/main/profile.jpg" alt="Ren Shirayuki" class="profile-image">
-                    </div>
-                </div>
-            </div>
-        </section>
+      const rows = 8;
+      const cols = 12;
+      const pieceWidth = window.innerWidth / cols;
+      const pieceHeight = window.innerHeight / rows;
 
-        <section class="skills" id="skills">
-            <div class="container">
-                <h2>What I Do</h2>
-                <div class="skills-grid">
-                    <div class="skill-card">
-                        <h3>Web Development</h3>
-                        <p>Creating responsive and modern websites using the latest technologies and frameworks.</p>
-                    </div>
-                    <div class="skill-card">
-                        <h3>UI/UX Design</h3>
-                        <p>Designing intuitive and beautiful user interfaces that provide exceptional user experiences.</p>
-                    </div>
-                    <div class="skill-card">
-                        <h3>Creative Coding</h3>
-                        <p>Exploring the intersection of art and code to create unique digital experiences.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const piece = document.createElement('div');
+          piece.className = 'puzzle-piece';
+          piece.style.width = pieceWidth + 'px';
+          piece.style.height = pieceHeight + 'px';
+          piece.style.left = (col * pieceWidth) + 'px';
+          piece.style.top = (row * pieceHeight) + 'px';
 
-        <section class="contact" id="contact">
-            <div class="container">
-                <h2>Let's Connect</h2>
-                <p>Ready to collaborate on something amazing? Let's talk!</p>
-                <div class="social-links">
-                    <a href="#" class="social-link" title="Email">@</a>
-                    <a href="#" class="social-link" title="GitHub">GH</a>
-                    <a href="#" class="social-link" title="LinkedIn">in</a>
-                    <a href="#" class="social-link" title="Twitter">X</a>
-                </div>
-            </div>
-        </section>
-    </main>
+          const randomX = (Math.random() - 0.5) * 1000 + 'px';
+          const randomY = (Math.random() - 0.5) * 1000 + 'px';
+          const randomRotate = (Math.random() - 0.5) * 720 + 'deg';
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Ren Shirayuki. All rights reserved.</p>
-        </div>
-    </footer>
+          piece.style.setProperty('--random-x', randomX);
+          piece.style.setProperty('--random-y', randomY);
+          piece.style.setProperty('--random-rotate', randomRotate);
 
-    <script>
-        // Theme toggle functionality
-        function toggleTheme() {
-            const body = document.body;
-            const themeIcon = document.querySelector('.theme-icon');
-            const themeText = document.querySelector('.theme-text');
-            const transition = document.querySelector('.theme-transition');
-            
-            // Add transition animation
-            transition.classList.add('active');
-            
-            // Remove animation after completion
-            setTimeout(() => {
-                transition.classList.remove('active');
-            }, 1600);
-            
-            // Small delay for smoother effect
-            setTimeout(() => {
-                if (body.getAttribute('data-theme') === 'light') {
-                    body.setAttribute('data-theme', 'dark');
-                    body.removeAttribute('data-theme');
-                    themeIcon.textContent = '🌙';
-                    themeText.textContent = 'Dark';
-                    localStorage.setItem('theme', 'dark');
-                } else {
-                    body.setAttribute('data-theme', 'light');
-                    themeIcon.textContent = '☀️';
-                    themeText.textContent = 'Light';
-                    localStorage.setItem('theme', 'light');
-                }
-            }, 300);
+          const delay = (row * cols + col) * 15;
+          piece.style.transitionDelay = delay + 'ms';
+
+          overlay.appendChild(piece);
         }
+      }
+    }
 
-        // Load saved theme
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            const body = document.body;
-            const themeIcon = document.querySelector('.theme-icon');
-            const themeText = document.querySelector('.theme-text');
-            
-            if (savedTheme === 'light') {
-                body.setAttribute('data-theme', 'light');
-                themeIcon.textContent = '☀️';
-                themeText.textContent = 'Light';
-            } else {
-                themeIcon.textContent = '🌙';
-                themeText.textContent = 'Dark';
-            }
-        }
+    function puzzleTransition(event, url) {
+      event.preventDefault();
 
-        // Load theme on page load
-        document.addEventListener('DOMContentLoaded', loadTheme);
+      createPuzzlePieces();
+      const overlay = document.getElementById('puzzleOverlay');
+      const pieces = overlay.querySelectorAll('.puzzle-piece');
 
-        // Puzzle transition effect
-        function createPuzzlePieces() {
-            const overlay = document.getElementById('puzzleOverlay');
-            overlay.innerHTML = '';
-            
-            const rows = 8;
-            const cols = 12;
-            const pieceWidth = window.innerWidth / cols;
-            const pieceHeight = window.innerHeight / rows;
-            
-            for (let row = 0; row < rows; row++) {
-                for (let col = 0; col < cols; col++) {
-                    const piece = document.createElement('div');
-                    piece.className = 'puzzle-piece';
-                    piece.style.width = pieceWidth + 'px';
-                    piece.style.height = pieceHeight + 'px';
-                    piece.style.left = (col * pieceWidth) + 'px';
-                    piece.style.top = (row * pieceHeight) + 'px';
-                    
-                    // Random animation values
-                    const randomX = (Math.random() - 0.5) * 1000 + 'px';
-                    const randomY = (Math.random() - 0.5) * 1000 + 'px';
-                    const randomRotate = (Math.random() - 0.5) * 720 + 'deg';
-                    
-                    piece.style.setProperty('--random-x', randomX);
-                    piece.style.setProperty('--random-y', randomY);
-                    piece.style.setProperty('--random-rotate', randomRotate);
-                    
-                    // Delay for each piece
-                    const delay = (row * cols + col) * 15;
-                    piece.style.transitionDelay = delay + 'ms';
-                    
-                    overlay.appendChild(piece);
-                }
-            }
-        }
+      overlay.style.display = 'block';
 
-        function puzzleTransition(event, url) {
-            event.preventDefault();
-            
-            createPuzzlePieces();
-            const pieces = document.querySelectorAll('.puzzle-piece');
-            
-            // Show overlay
-            document.getElementById('puzzleOverlay').style.display = 'block';
-            
-            // Animate pieces in
-            setTimeout(() => {
-                pieces.forEach(piece => {
-                    piece.classList.add('animate-in');
-                });
-            }, 50);
-            
-            // Transition to new page
-            setTimeout(() => {
-                window.location.href = url;
-            }, 1200);
-        }
+      // Animate pieces in
+      setTimeout(() => {
+        pieces.forEach(piece => piece.classList.add('animate-in'));
+      }, 50);
 
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
+      // Animate pieces out
+      setTimeout(() => {
+        pieces.forEach(piece => {
+          piece.classList.remove('animate-in');
+          piece.classList.add('animate-out');
         });
+      }, 800);
 
-        // Header background on scroll
-        window.addEventListener('scroll', () => {
-            const header = document.querySelector('header');
-            const isLight = document.body.getAttribute('data-theme') === 'light';
-            
-            if (window.scrollY > 100) {
-                header.style.background = isLight ? 'rgba(248, 249, 250, 0.95)' : 'rgba(0, 0, 0, 0.95)';
-            } else {
-                header.style.background = isLight ? 'rgba(248, 249, 250, 0.9)' : 'rgba(0, 0, 0, 0.9)';
-            }
-        });
-
-        // Create additional particles
-        for (let i = 0; i < 10; i++) {
-            createParticle();
-        }
-
-        // Add more floating particles dynamically
-        function createParticle() {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.width = (Math.random() * 5 + 2) + 'px';
-            particle.style.height = particle.style.width;
-            particle.style.animationDelay = Math.random() * 6 + 's';
-            particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
-            document.querySelector('.particles').appendChild(particle);
-        }
-    </script>
+      // Redirect after out
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        window.location.href = url;
+      }, 1600);
+    }
+  </script>
 </body>
 </html>
