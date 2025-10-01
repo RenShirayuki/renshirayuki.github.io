@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Maker - Ren Shirayuki</title>
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --text-muted: #888888;
+            --border-color: #333333;
+            --accent: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0;
+            margin-bottom: 3rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 24px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            text-decoration: none;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .back-btn:hover {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            transform: translateX(-5px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .form-section, .preview-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: var(--bg-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: var(--bg-tertiary);
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--accent);
+            background: var(--bg-tertiary);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        .character-preview {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            min-height: 500px;
+        }
+
+        .preview-image {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 2rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-placeholder {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .info-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-value {
+            color: var(--text-primary);
+        }
+
+        .bio-section {
+            margin-top: 1.5rem;
+        }
+
+        .bio-section .info-label {
+            margin-bottom: 0.5rem;
+        }
+
+        .bio-section .info-value {
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .back-btn {
+                position: static;
+                display: inline-block;
+                margin-bottom: 2rem;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .info-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="projects.html" class="back-btn">← Back to Projects</a>
+
+        <header>
+            <h1>Character Maker</h1>
+            <p>Create detailed character profiles</p>
+        </header>
+
+        <div class="main-content">
+            <div class="form-section">
+                <h2 class="section-title">Character Information</h2>
+
+                <div class="form-group">
+                    <label>Character Photo</label>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">Click to upload or drag and drop</div>
+                        <div class="upload-text" style="font-size: 0.8rem;">PNG, JPG up to 5MB</div>
+                    </div>
+                    <input type="file" id="imageInput" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="charName" placeholder="Enter character name">
+                </div>
+
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="number" id="charAge" placeholder="Enter age">
+                </div>
+
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="charGender">
+                        <option value="">Select gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Non-binary">Non-binary</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Occupation</label>
+                    <input type="text" id="charOccupation" placeholder="Enter occupation">
+                </div>
+
+                <div class="form-group">
+                    <label>Personality</label>
+                    <input type="text" id="charPersonality" placeholder="e.g., Brave, Intelligent, Kind">
+                </div>
+
+                <div class="form-group">
+                    <label>Abilities/Skills</label>
+                    <input type="text" id="charAbilities" placeholder="Enter special abilities or skills">
+                </div>
+
+                <div class="form-group">
+                    <label>Background Story</label>
+                    <textarea id="charBio" placeholder="Write character's background story..."></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn" id="resetBtn">Reset</button>
+                    <button class="btn btn-primary" id="downloadBtn">Download Profile</button>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h2 class="section-title">Preview</h2>
+                
+                <div class="character-preview">
+                    <div class="preview-image" id="previewImage">
+                        <span class="preview-placeholder">No image uploaded</span>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Name</div>
+                        <div class="info-value" id="previewName">-</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Age</div>
+                        <div class="info-value" id="previewAge">-</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Gender</div>
+                        <div class="info-value" id="previewGender">-</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Occupation</div>
+                        <div class="info-value" id="previewOccupation">-</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Personality</div>
+                        <div class="info-value" id="previewPersonality">-</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Abilities</div>
+                        <div class="info-value" id="previewAbilities">-</div>
+                    </div>
+
+                    <div class="bio-section">
+                        <div class="info-label">Background</div>
+                        <div class="info-value" id="previewBio">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedImage = null;
+
+        const uploadArea = document.getElementById('uploadArea');
+        const imageInput = document.getElementById('imageInput');
+        const previewImage = document.getElementById('previewImage');
+
+        uploadArea.addEventListener('click', () => imageInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleImageUpload(file);
+            }
+        });
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleImageUpload(file);
+            }
+        });
+
+        function handleImageUpload(file) {
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedImage = e.target.result;
+                previewImage.innerHTML = `<img src="${uploadedImage}" alt="Character">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        const inputs = {
+            name: document.getElementById('charName'),
+            age: document.getElementById('charAge'),
+            gender: document.getElementById('charGender'),
+            occupation: document.getElementById('charOccupation'),
+            personality: document.getElementById('charPersonality'),
+            abilities: document.getElementById('charAbilities'),
+            bio: document.getElementById('charBio')
+        };
+
+        const previews = {
+            name: document.getElementById('previewName'),
+            age: document.getElementById('previewAge'),
+            gender: document.getElementById('previewGender'),
+            occupation: document.getElementById('previewOccupation'),
+            personality: document.getElementById('previewPersonality'),
+            abilities: document.getElementById('previewAbilities'),
+            bio: document.getElementById('previewBio')
+        };
+
+        Object.keys(inputs).forEach(key => {
+            inputs[key].addEventListener('input', () => {
+                previews[key].textContent = inputs[key].value || '-';
+            });
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset all fields?')) {
+                Object.values(inputs).forEach(input => input.value = '');
+                Object.values(previews).forEach(preview => preview.textContent = '-');
+                previewImage.innerHTML = '<span class="preview-placeholder">No image uploaded</span>';
+                uploadedImage = null;
+                imageInput.value = '';
+            }
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const characterData = {
+                name: inputs.name.value || 'Unnamed Character',
+                age: inputs.age.value || 'N/A',
+                gender: inputs.gender.value || 'N/A',
+                occupation: inputs.occupation.value || 'N/A',
+                personality: inputs.personality.value || 'N/A',
+                abilities: inputs.abilities.value || 'N/A',
+                bio: inputs.bio.value || 'No background story provided.',
+                image: uploadedImage
+            };
+
+            const dataStr = JSON.stringify(characterData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${characterData.name.replace(/\s+/g, '_')}_profile.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
