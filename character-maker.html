@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Character Maker - Ren Shirayuki</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
             --bg-primary: #000000;
@@ -168,7 +170,7 @@
             margin-bottom: 0.5rem;
         }
 
-        #imageInput {
+        #imageInput, #backgroundInput {
             display: none;
         }
 
@@ -176,8 +178,20 @@
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 2rem;
             min-height: 500px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        .preview-overlay {
+            background: rgba(0, 0, 0, 0.75);
+            padding: 2rem;
+            width: 100%;
+            min-height: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         .preview-image {
@@ -191,6 +205,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            z-index: 1;
         }
 
         .preview-image img {
@@ -211,6 +227,7 @@
             margin-bottom: 1rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid var(--border-color);
+            max-width: 100%;
         }
 
         .info-label {
@@ -218,10 +235,15 @@
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 1px;
+            flex-shrink: 0;
         }
 
         .info-value {
             color: var(--text-primary);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            max-width: 100%;
         }
 
         .bio-section {
@@ -234,6 +256,9 @@
 
         .bio-section .info-value {
             line-height: 1.6;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
         }
 
         .action-buttons {
@@ -272,6 +297,16 @@
             color: var(--text-primary);
         }
 
+        .download-options {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .small-upload {
+            padding: 2rem 1rem;
+        }
+
         @media (max-width: 1024px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -294,7 +329,7 @@
                 gap: 0.5rem;
             }
 
-            .action-buttons {
+            .action-buttons, .download-options {
                 flex-direction: column;
             }
         }
@@ -321,6 +356,15 @@
                         <div class="upload-text" style="font-size: 0.8rem;">PNG, JPG up to 5MB</div>
                     </div>
                     <input type="file" id="imageInput" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label>Background Image</label>
+                    <div class="upload-area small-upload" id="bgUploadArea">
+                        <div class="upload-icon">🖼️</div>
+                        <div class="upload-text">Upload custom background</div>
+                    </div>
+                    <input type="file" id="backgroundInput" accept="image/*">
                 </div>
 
                 <div class="form-group">
@@ -366,51 +410,57 @@
 
                 <div class="action-buttons">
                     <button class="btn" id="resetBtn">Reset</button>
-                    <button class="btn btn-primary" id="downloadBtn">Download Profile</button>
+                </div>
+
+                <div class="download-options">
+                    <button class="btn btn-primary" id="downloadPDF">Download PDF</button>
+                    <button class="btn btn-primary" id="downloadPNG">Download PNG</button>
                 </div>
             </div>
 
             <div class="preview-section">
                 <h2 class="section-title">Preview</h2>
                 
-                <div class="character-preview">
-                    <div class="preview-image" id="previewImage">
-                        <span class="preview-placeholder">No image uploaded</span>
-                    </div>
+                <div class="character-preview" id="characterPreview">
+                    <div class="preview-overlay">
+                        <div class="preview-image" id="previewImage">
+                            <span class="preview-placeholder">No image uploaded</span>
+                        </div>
 
-                    <div class="info-row">
-                        <div class="info-label">Name</div>
-                        <div class="info-value" id="previewName">-</div>
-                    </div>
+                        <div class="info-row">
+                            <div class="info-label">Name</div>
+                            <div class="info-value" id="previewName">-</div>
+                        </div>
 
-                    <div class="info-row">
-                        <div class="info-label">Age</div>
-                        <div class="info-value" id="previewAge">-</div>
-                    </div>
+                        <div class="info-row">
+                            <div class="info-label">Age</div>
+                            <div class="info-value" id="previewAge">-</div>
+                        </div>
 
-                    <div class="info-row">
-                        <div class="info-label">Gender</div>
-                        <div class="info-value" id="previewGender">-</div>
-                    </div>
+                        <div class="info-row">
+                            <div class="info-label">Gender</div>
+                            <div class="info-value" id="previewGender">-</div>
+                        </div>
 
-                    <div class="info-row">
-                        <div class="info-label">Occupation</div>
-                        <div class="info-value" id="previewOccupation">-</div>
-                    </div>
+                        <div class="info-row">
+                            <div class="info-label">Occupation</div>
+                            <div class="info-value" id="previewOccupation">-</div>
+                        </div>
 
-                    <div class="info-row">
-                        <div class="info-label">Personality</div>
-                        <div class="info-value" id="previewPersonality">-</div>
-                    </div>
+                        <div class="info-row">
+                            <div class="info-label">Personality</div>
+                            <div class="info-value" id="previewPersonality">-</div>
+                        </div>
 
-                    <div class="info-row">
-                        <div class="info-label">Abilities</div>
-                        <div class="info-value" id="previewAbilities">-</div>
-                    </div>
+                        <div class="info-row">
+                            <div class="info-label">Abilities</div>
+                            <div class="info-value" id="previewAbilities">-</div>
+                        </div>
 
-                    <div class="bio-section">
-                        <div class="info-label">Background</div>
-                        <div class="info-value" id="previewBio">-</div>
+                        <div class="bio-section">
+                            <div class="info-label">Background</div>
+                            <div class="info-value" id="previewBio">-</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -419,11 +469,16 @@
 
     <script>
         let uploadedImage = null;
+        let backgroundImage = null;
 
         const uploadArea = document.getElementById('uploadArea');
         const imageInput = document.getElementById('imageInput');
         const previewImage = document.getElementById('previewImage');
+        const bgUploadArea = document.getElementById('bgUploadArea');
+        const backgroundInput = document.getElementById('backgroundInput');
+        const characterPreview = document.getElementById('characterPreview');
 
+        // Character Photo Upload
         uploadArea.addEventListener('click', () => imageInput.click());
 
         uploadArea.addEventListener('dragover', (e) => {
@@ -465,6 +520,49 @@
             reader.readAsDataURL(file);
         }
 
+        // Background Upload
+        bgUploadArea.addEventListener('click', () => backgroundInput.click());
+
+        bgUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            bgUploadArea.classList.add('drag-over');
+        });
+
+        bgUploadArea.addEventListener('dragleave', () => {
+            bgUploadArea.classList.remove('drag-over');
+        });
+
+        bgUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            bgUploadArea.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleBackgroundUpload(file);
+            }
+        });
+
+        backgroundInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleBackgroundUpload(file);
+            }
+        });
+
+        function handleBackgroundUpload(file) {
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                backgroundImage = e.target.result;
+                characterPreview.style.backgroundImage = `url(${backgroundImage})`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Form inputs to preview
         const inputs = {
             name: document.getElementById('charName'),
             age: document.getElementById('charAge'),
@@ -491,36 +589,73 @@
             });
         });
 
+        // Reset Button
         document.getElementById('resetBtn').addEventListener('click', () => {
             if (confirm('Are you sure you want to reset all fields?')) {
                 Object.values(inputs).forEach(input => input.value = '');
                 Object.values(previews).forEach(preview => preview.textContent = '-');
                 previewImage.innerHTML = '<span class="preview-placeholder">No image uploaded</span>';
+                characterPreview.style.backgroundImage = 'none';
                 uploadedImage = null;
+                backgroundImage = null;
                 imageInput.value = '';
+                backgroundInput.value = '';
             }
         });
 
-        document.getElementById('downloadBtn').addEventListener('click', () => {
-            const characterData = {
-                name: inputs.name.value || 'Unnamed Character',
-                age: inputs.age.value || 'N/A',
-                gender: inputs.gender.value || 'N/A',
-                occupation: inputs.occupation.value || 'N/A',
-                personality: inputs.personality.value || 'N/A',
-                abilities: inputs.abilities.value || 'N/A',
-                bio: inputs.bio.value || 'No background story provided.',
-                image: uploadedImage
-            };
+        // Download PNG
+        document.getElementById('downloadPNG').addEventListener('click', async () => {
+            const charName = inputs.name.value || 'character';
+            try {
+                const canvas = await html2canvas(characterPreview, {
+                    backgroundColor: '#000000',
+                    scale: 2,
+                    logging: false,
+                    useCORS: true
+                });
+                
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `${charName.replace(/\s+/g, '_')}_profile.png`;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                });
+            } catch (error) {
+                alert('Error generating PNG. Please try again.');
+                console.error(error);
+            }
+        });
 
-            const dataStr = JSON.stringify(characterData, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${characterData.name.replace(/\s+/g, '_')}_profile.json`;
-            link.click();
-            URL.revokeObjectURL(url);
+        // Download PDF
+        document.getElementById('downloadPDF').addEventListener('click', async () => {
+            const charName = inputs.name.value || 'character';
+            try {
+                const canvas = await html2canvas(characterPreview, {
+                    backgroundColor: '#000000',
+                    scale: 2,
+                    logging: false,
+                    useCORS: true
+                });
+
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const imgWidth = 190;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+                pdf.save(`${charName.replace(/\s+/g, '_')}_profile.pdf`);
+            } catch (error) {
+                alert('Error generating PDF. Please try again.');
+                console.error(error);
+            }
         });
     </script>
 </body>
