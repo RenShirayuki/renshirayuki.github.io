@@ -6,6 +6,8 @@
     <title>Character Maker - Ren Shirayuki</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <style>
         :root {
             --bg-primary: #000000;
@@ -18,645 +20,279 @@
             --accent: #ffffff;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: 'Arial', sans-serif; background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%); color: var(--text-primary); min-height: 100vh; padding:20px; }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 20px;
-        }
+        .container { max-width: 1400px; margin:0 auto; }
+        header { text-align:center; padding:2rem 0; margin-bottom:3rem; border-bottom:2px solid var(--border-color); }
+        header h1 { font-size:2.5rem; margin-bottom:0.5rem; text-transform:uppercase; letter-spacing:3px; }
+        header p { color: var(--text-muted); font-size:1rem; }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        .back-btn { position: fixed; top:20px; left:20px; padding:12px 24px; background: var(--bg-tertiary); color: var(--text-primary); text-decoration:none; border:1px solid var(--border-color); border-radius:8px; transition:all 0.3s ease; z-index:100; }
+        .back-btn:hover { background: var(--text-primary); color: var(--bg-primary); transform: translateX(-5px); }
 
-        header {
-            text-align: center;
-            padding: 2rem 0;
-            margin-bottom: 3rem;
-            border-bottom: 2px solid var(--border-color);
-        }
+        .main-content { display:grid; grid-template-columns:1fr 1fr; gap:3rem; margin-bottom:3rem; }
+        .form-section, .preview-section { background: var(--bg-secondary); border:1px solid var(--border-color); border-radius:12px; padding:2rem; }
+        .section-title { font-size:1.5rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border-color); text-transform:uppercase; letter-spacing:2px; }
 
-        header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
+        .form-group { margin-bottom:1.5rem; }
+        label { display:block; margin-bottom:0.5rem; color: var(--text-secondary); font-size:0.9rem; text-transform:uppercase; letter-spacing:1px; }
 
-        header p {
-            color: var(--text-muted);
-            font-size: 1rem;
-        }
+        input[type="text"], input[type="number"], textarea, select { width:100%; padding:12px; background: var(--bg-primary); border:1px solid var(--border-color); border-radius:6px; color: var(--text-primary); font-size:1rem; transition:all 0.3s ease; }
+        input:focus, textarea:focus, select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 2px rgba(255,255,255,0.1); }
+        textarea { resize:vertical; min-height:100px; }
 
-        .back-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            padding: 12px 24px;
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            text-decoration: none;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            z-index: 100;
-        }
+        .upload-area { border:2px dashed var(--border-color); border-radius:8px; padding:3rem 2rem; text-align:center; background: var(--bg-primary); cursor:pointer; transition: all 0.3s ease; position:relative; }
+        .upload-area:hover, .upload-area.drag-over { border-color: var(--accent); background: var(--bg-tertiary); }
+        .upload-icon { font-size:3rem; margin-bottom:1rem; }
+        .upload-text { color: var(--text-muted); margin-bottom:0.5rem; }
 
-        .back-btn:hover {
-            background: var(--text-primary);
-            color: var(--bg-primary);
-            transform: translateX(-5px);
-        }
+        #imageInput, #backgroundInput { display:none; }
 
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            margin-bottom: 3rem;
-        }
+        .character-preview { background: var(--bg-primary); border:1px solid var(--border-color); border-radius:8px; min-height:500px; position:relative; background-size:cover; background-position:center; overflow:hidden; }
+        .preview-overlay { background: rgba(0,0,0,0.75); padding:2rem; width:100%; min-height:100%; max-width:100%; box-sizing:border-box; }
+        .preview-image { width:200px; height:200px; margin:0 auto 2rem; border:2px solid var(--border-color); border-radius:8px; overflow:hidden; background: var(--bg-tertiary); display:flex; align-items:center; justify-content:center; position:relative; z-index:1; }
+        .preview-image img { width:100%; height:100%; object-fit:cover; }
+        .preview-placeholder { color: var(--text-muted); font-size:0.9rem; }
 
-        .form-section, .preview-section {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 2rem;
-        }
+        .info-row { display:grid; grid-template-columns:120px 1fr; gap:1rem; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid var(--border-color); max-width:100%; }
+        .info-label { color: var(--text-muted); font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; flex-shrink:0; }
+        .info-value { color: var(--text-primary); word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; max-width:100%; }
 
-        .section-title {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+        .bio-section { margin-top:1.5rem; }
+        .bio-section .info-label { margin-bottom:0.5rem; }
+        .bio-section .info-value { line-height:1.6; word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap; }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
+        .action-buttons { display:flex; gap:1rem; margin-top:2rem; }
+        .btn { flex:1; padding:14px 24px; background: var(--bg-primary); color: var(--text-primary); border:1px solid var(--border-color); border-radius:8px; cursor:pointer; font-size:1rem; text-transform:uppercase; letter-spacing:1px; transition:all 0.3s ease; }
+        .btn:hover { background: var(--text-primary); color: var(--bg-primary); transform:translateY(-2px); }
+        .btn-primary { background: var(--text-primary); color: var(--bg-primary); }
+        .btn-primary:hover { background: var(--bg-tertiary); color: var(--text-primary); }
 
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        .download-options { display:flex; gap:1rem; margin-top:1rem; }
+        .small-upload { padding:2rem 1rem; }
 
-        input[type="text"],
-        input[type="number"],
-        textarea,
-        select {
-            width: 100%;
-            padding: 12px;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
+        /* Crop Modal */
+        #cropModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:200; }
+        #cropModal div { background:#1a1a1a; padding:20px; border-radius:8px; max-width:90%; max-height:90%; }
+        #cropModal img { max-width:100%; max-height:70vh; }
 
-        input:focus,
-        textarea:focus,
-        select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .upload-area {
-            border: 2px dashed var(--border-color);
-            border-radius: 8px;
-            padding: 3rem 2rem;
-            text-align: center;
-            background: var(--bg-primary);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .upload-area:hover {
-            border-color: var(--accent);
-            background: var(--bg-tertiary);
-        }
-
-        .upload-area.drag-over {
-            border-color: var(--accent);
-            background: var(--bg-tertiary);
-        }
-
-        .upload-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .upload-text {
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-
-        #imageInput, #backgroundInput {
-            display: none;
-        }
-
-        .character-preview {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            min-height: 500px;
-            position: relative;
-            background-size: cover;
-            background-position: center;
-            overflow: hidden;
-        }
-
-        .preview-overlay {
-            background: rgba(0, 0, 0, 0.75);
-            padding: 2rem;
-            width: 100%;
-            min-height: 100%;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .preview-image {
-            width: 200px;
-            height: 200px;
-            margin: 0 auto 2rem;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            overflow: hidden;
-            background: var(--bg-tertiary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        .preview-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .preview-placeholder {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .info-row {
-            display: grid;
-            grid-template-columns: 120px 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            max-width: 100%;
-        }
-
-        .info-label {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            flex-shrink: 0;
-        }
-
-        .info-value {
-            color: var(--text-primary);
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            word-break: break-word;
-            max-width: 100%;
-        }
-
-        .bio-section {
-            margin-top: 1.5rem;
-        }
-
-        .bio-section .info-label {
-            margin-bottom: 0.5rem;
-        }
-
-        .bio-section .info-value {
-            line-height: 1.6;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            white-space: pre-wrap;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 14px 24px;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-        }
-
-        .btn:hover {
-            background: var(--text-primary);
-            color: var(--bg-primary);
-            transform: translateY(-2px);
-        }
-
-        .btn-primary {
-            background: var(--text-primary);
-            color: var(--bg-primary);
-        }
-
-        .btn-primary:hover {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-        }
-
-        .download-options {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .small-upload {
-            padding: 2rem 1rem;
-        }
-
-        @media (max-width: 1024px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .back-btn {
-                position: static;
-                display: inline-block;
-                margin-bottom: 2rem;
-            }
-
-            header h1 {
-                font-size: 2rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .info-row {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-            }
-
-            .action-buttons, .download-options {
-                flex-direction: column;
-            }
-        }
+        @media (max-width:1024px) { .main-content { grid-template-columns:1fr; } .back-btn { position:static; display:inline-block; margin-bottom:2rem; } header h1 { font-size:2rem; } }
+        @media (max-width:768px) { .info-row { grid-template-columns:1fr; gap:0.5rem; } .action-buttons, .download-options { flex-direction:column; } }
     </style>
 </head>
 <body>
-    <div class="container">
-        <a href="projects.html" class="back-btn">← Back to Projects</a>
+<div class="container">
+    <a href="projects.html" class="back-btn">← Back to Projects</a>
+    <header>
+        <h1>Character Maker</h1>
+        <p>Create detailed character profiles</p>
+    </header>
 
-        <header>
-            <h1>Character Maker</h1>
-            <p>Create detailed character profiles</p>
-        </header>
+    <div class="main-content">
+        <div class="form-section">
+            <h2 class="section-title">Character Information</h2>
 
-        <div class="main-content">
-            <div class="form-section">
-                <h2 class="section-title">Character Information</h2>
-
-                <div class="form-group">
-                    <label>Character Photo</label>
-                    <div class="upload-area" id="uploadArea">
-                        <div class="upload-icon">📷</div>
-                        <div class="upload-text">Click to upload or drag and drop</div>
-                        <div class="upload-text" style="font-size: 0.8rem;">PNG, JPG up to 5MB</div>
-                    </div>
-                    <input type="file" id="imageInput" accept="image/*">
+            <div class="form-group">
+                <label>Character Photo</label>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Click to upload or drag and drop</div>
+                    <div class="upload-text" style="font-size:0.8rem;">PNG, JPG up to 5MB</div>
                 </div>
-
-                <div class="form-group">
-                    <label>Background Image</label>
-                    <div class="upload-area small-upload" id="bgUploadArea">
-                        <div class="upload-icon">🖼️</div>
-                        <div class="upload-text">Upload custom background</div>
-                    </div>
-                    <input type="file" id="backgroundInput" accept="image/*">
-                </div>
-
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" id="charName" placeholder="Enter character name">
-                </div>
-
-                <div class="form-group">
-                    <label>Age</label>
-                    <input type="number" id="charAge" placeholder="Enter age">
-                </div>
-
-                <div class="form-group">
-                    <label>Gender</label>
-                    <select id="charGender">
-                        <option value="">Select gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Non-binary">Non-binary</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Occupation</label>
-                    <input type="text" id="charOccupation" placeholder="Enter occupation">
-                </div>
-
-                <div class="form-group">
-                    <label>Personality</label>
-                    <input type="text" id="charPersonality" placeholder="e.g., Brave, Intelligent, Kind">
-                </div>
-
-                <div class="form-group">
-                    <label>Abilities/Skills</label>
-                    <input type="text" id="charAbilities" placeholder="Enter special abilities or skills">
-                </div>
-
-                <div class="form-group">
-                    <label>Background Story</label>
-                    <textarea id="charBio" placeholder="Write character's background story..."></textarea>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn" id="resetBtn">Reset</button>
-                </div>
-
-                <div class="download-options">
-                    <button class="btn btn-primary" id="downloadPDF">Download PDF</button>
-                    <button class="btn btn-primary" id="downloadPNG">Download PNG</button>
-                </div>
+                <input type="file" id="imageInput" accept="image/*">
             </div>
 
-            <div class="preview-section">
-                <h2 class="section-title">Preview</h2>
-                
-                <div class="character-preview" id="characterPreview">
-                    <div class="preview-overlay">
-                        <div class="preview-image" id="previewImage">
-                            <span class="preview-placeholder">No image uploaded</span>
-                        </div>
+            <div class="form-group">
+                <label>Profile Picture Shape</label>
+                <select id="profileShape">
+                    <option value="default">Square / Default</option>
+                    <option value="round">Round</option>
+                </select>
+            </div>
 
-                        <div class="info-row">
-                            <div class="info-label">Name</div>
-                            <div class="info-value" id="previewName">-</div>
-                        </div>
+            <div class="form-group">
+                <label>Background Image</label>
+                <div class="upload-area small-upload" id="bgUploadArea">
+                    <div class="upload-icon">🖼️</div>
+                    <div class="upload-text">Upload custom background</div>
+                </div>
+                <input type="file" id="backgroundInput" accept="image/*">
+            </div>
 
-                        <div class="info-row">
-                            <div class="info-label">Age</div>
-                            <div class="info-value" id="previewAge">-</div>
-                        </div>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="charName" placeholder="Enter character name">
+            </div>
+            <div class="form-group">
+                <label>Age</label>
+                <input type="number" id="charAge" placeholder="Enter age">
+            </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <select id="charGender">
+                    <option value="">Select gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Non-binary">Non-binary</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Occupation</label>
+                <input type="text" id="charOccupation" placeholder="Enter occupation">
+            </div>
+            <div class="form-group">
+                <label>Personality</label>
+                <input type="text" id="charPersonality" placeholder="e.g., Brave, Intelligent, Kind">
+            </div>
+            <div class="form-group">
+                <label>Abilities/Skills</label>
+                <input type="text" id="charAbilities" placeholder="Enter special abilities or skills">
+            </div>
+            <div class="form-group">
+                <label>Background Story</label>
+                <textarea id="charBio" placeholder="Write character's background story..."></textarea>
+            </div>
 
-                        <div class="info-row">
-                            <div class="info-label">Gender</div>
-                            <div class="info-value" id="previewGender">-</div>
-                        </div>
+            <div class="action-buttons">
+                <button class="btn" id="resetBtn">Reset</button>
+            </div>
 
-                        <div class="info-row">
-                            <div class="info-label">Occupation</div>
-                            <div class="info-value" id="previewOccupation">-</div>
-                        </div>
+            <div class="download-options">
+                <button class="btn btn-primary" id="downloadPDF">Download PDF</button>
+                <button class="btn btn-primary" id="downloadPNG">Download PNG</button>
+            </div>
+        </div>
 
-                        <div class="info-row">
-                            <div class="info-label">Personality</div>
-                            <div class="info-value" id="previewPersonality">-</div>
-                        </div>
+        <div class="preview-section">
+            <h2 class="section-title">Preview</h2>
+            <div class="character-preview" id="characterPreview">
+                <div class="preview-overlay">
+                    <div class="preview-image" id="previewImage">
+                        <span class="preview-placeholder">No image uploaded</span>
+                    </div>
 
-                        <div class="info-row">
-                            <div class="info-label">Abilities</div>
-                            <div class="info-value" id="previewAbilities">-</div>
-                        </div>
+                    <div class="info-row"><div class="info-label">Name</div><div class="info-value" id="previewName">-</div></div>
+                    <div class="info-row"><div class="info-label">Age</div><div class="info-value" id="previewAge">-</div></div>
+                    <div class="info-row"><div class="info-label">Gender</div><div class="info-value" id="previewGender">-</div></div>
+                    <div class="info-row"><div class="info-label">Occupation</div><div class="info-value" id="previewOccupation">-</div></div>
+                    <div class="info-row"><div class="info-label">Personality</div><div class="info-value" id="previewPersonality">-</div></div>
+                    <div class="info-row"><div class="info-label">Abilities</div><div class="info-value" id="previewAbilities">-</div></div>
 
-                        <div class="bio-section">
-                            <div class="info-label">Background</div>
-                            <div class="info-value" id="previewBio">-</div>
-                        </div>
+                    <div class="bio-section">
+                        <div class="info-label">Background</div>
+                        <div class="info-value" id="previewBio">-</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        let uploadedImage = null;
-        let backgroundImage = null;
+<!-- Crop Modal -->
+<div id="cropModal">
+    <div>
+        <img id="cropImage">
+        <div style="margin-top:10px; text-align:right;">
+            <button id="cropConfirm" class="btn btn-primary">Crop</button>
+            <button id="cropCancel" class="btn">Cancel</button>
+        </div>
+    </div>
+</div>
 
-        const uploadArea = document.getElementById('uploadArea');
-        const imageInput = document.getElementById('imageInput');
-        const previewImage = document.getElementById('previewImage');
-        const bgUploadArea = document.getElementById('bgUploadArea');
-        const backgroundInput = document.getElementById('backgroundInput');
-        const characterPreview = document.getElementById('characterPreview');
+<script>
+    let uploadedImage = null;
+    let backgroundImage = null;
+    let cropper = null;
 
-        // Character Photo Upload
-        uploadArea.addEventListener('click', () => imageInput.click());
+    const uploadArea = document.getElementById('uploadArea');
+    const imageInput = document.getElementById('imageInput');
+    const previewImage = document.getElementById('previewImage');
+    const bgUploadArea = document.getElementById('bgUploadArea');
+    const backgroundInput = document.getElementById('backgroundInput');
+    const characterPreview = document.getElementById('characterPreview');
+    const cropModal = document.getElementById('cropModal');
+    const cropImage = document.getElementById('cropImage');
+    const cropConfirm = document.getElementById('cropConfirm');
+    const cropCancel = document.getElementById('cropCancel');
+    const profileShape = document.getElementById('profileShape');
 
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('drag-over');
-        });
+    // Character Photo Upload
+    uploadArea.addEventListener('click', () => imageInput.click());
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+    uploadArea.addEventListener('dragleave', () => { uploadArea.classList.remove('drag-over'); });
+    uploadArea.addEventListener('drop', e => {
+        e.preventDefault(); uploadArea.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if(file && file.type.startsWith('image/')) handleImageUpload(file);
+    });
 
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('drag-over');
-        });
+    imageInput.addEventListener('change', e => { if(e.target.files[0]) handleImageUpload(e.target.files[0]); });
 
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('drag-over');
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                handleImageUpload(file);
-            }
-        });
-
-        imageInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                handleImageUpload(file);
-            }
-        });
-
-        function handleImageUpload(file) {
-            if (file.size > 5 * 1024 * 1024) {
-                alert('File size must be less than 5MB');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                uploadedImage = e.target.result;
-                previewImage.innerHTML = `<img src="${uploadedImage}" alt="Character">`;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // Background Upload
-        bgUploadArea.addEventListener('click', () => backgroundInput.click());
-
-        bgUploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            bgUploadArea.classList.add('drag-over');
-        });
-
-        bgUploadArea.addEventListener('dragleave', () => {
-            bgUploadArea.classList.remove('drag-over');
-        });
-
-        bgUploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            bgUploadArea.classList.remove('drag-over');
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                handleBackgroundUpload(file);
-            }
-        });
-
-        backgroundInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                handleBackgroundUpload(file);
-            }
-        });
-
-        function handleBackgroundUpload(file) {
-            if (file.size > 5 * 1024 * 1024) {
-                alert('File size must be less than 5MB');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                backgroundImage = e.target.result;
-                characterPreview.style.backgroundImage = `url(${backgroundImage})`;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // Form inputs to preview
-        const inputs = {
-            name: document.getElementById('charName'),
-            age: document.getElementById('charAge'),
-            gender: document.getElementById('charGender'),
-            occupation: document.getElementById('charOccupation'),
-            personality: document.getElementById('charPersonality'),
-            abilities: document.getElementById('charAbilities'),
-            bio: document.getElementById('charBio')
+    function handleImageUpload(file){
+        if(file.size > 5*1024*1024){ alert('File size must be less than 5MB'); return; }
+        const reader = new FileReader();
+        reader.onload = e => {
+            uploadedImage = e.target.result;
+            const shape = profileShape.value === 'round' ? '50%' : '8px';
+            previewImage.innerHTML = `<img src="${uploadedImage}" alt="Character" style="border-radius:${shape};">`;
         };
+        reader.readAsDataURL(file);
+    }
 
-        const previews = {
-            name: document.getElementById('previewName'),
-            age: document.getElementById('previewAge'),
-            gender: document.getElementById('previewGender'),
-            occupation: document.getElementById('previewOccupation'),
-            personality: document.getElementById('previewPersonality'),
-            abilities: document.getElementById('previewAbilities'),
-            bio: document.getElementById('previewBio')
+    profileShape.addEventListener('change', ()=>{
+        if(uploadedImage){
+            const shape = profileShape.value === 'round' ? '50%' : '8px';
+            previewImage.querySelector('img').style.borderRadius = shape;
+        }
+    });
+
+    // Background Upload + Crop
+    bgUploadArea.addEventListener('click', ()=> backgroundInput.click());
+    bgUploadArea.addEventListener('dragover', e=>{ e.preventDefault(); bgUploadArea.classList.add('drag-over'); });
+    bgUploadArea.addEventListener('dragleave', ()=>{ bgUploadArea.classList.remove('drag-over'); });
+    bgUploadArea.addEventListener('drop', e=>{ e.preventDefault(); bgUploadArea.classList.remove('drag-over'); const file=e.dataTransfer.files[0]; if(file && file.type.startsWith('image/')) handleBackgroundUpload(file); });
+    backgroundInput.addEventListener('change', e=>{ if(e.target.files[0]) handleBackgroundUpload(e.target.files[0]); });
+
+    function handleBackgroundUpload(file){
+        if(file.size > 5*1024*1024){ alert('File size must be less than 5MB'); return; }
+        const reader = new FileReader();
+        reader.onload = e=>{
+            cropImage.src = e.target.result;
+            cropModal.style.display='flex';
+            if(cropper) cropper.destroy();
+            cropper = new Cropper(cropImage, { viewMode:1, aspectRatio:16/9, background:false, autoCropArea:1 });
         };
+        reader.readAsDataURL(file);
+    }
 
-        Object.keys(inputs).forEach(key => {
-            inputs[key].addEventListener('input', () => {
-                previews[key].textContent = inputs[key].value || '-';
-            });
-        });
+    cropConfirm.addEventListener('click', ()=>{
+        const canvas = cropper.getCroppedCanvas({ width:1400, height:788 });
+        backgroundImage = canvas.toDataURL();
+        characterPreview.style.backgroundImage = `url(${backgroundImage})`;
+        cropModal.style.display='none';
+        cropper.destroy();
+    });
 
-        // Reset Button
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            if (confirm('Are you sure you want to reset all fields?')) {
-                Object.values(inputs).forEach(input => input.value = '');
-                Object.values(previews).forEach(preview => preview.textContent = '-');
-                previewImage.innerHTML = '<span class="preview-placeholder">No image uploaded</span>';
-                characterPreview.style.backgroundImage = 'none';
-                uploadedImage = null;
-                backgroundImage = null;
-                imageInput.value = '';
-                backgroundInput.value = '';
-            }
-        });
+    cropCancel.addEventListener('click', ()=>{
+        cropModal.style.display='none';
+        cropper.destroy();
+    });
 
-        // Download PNG
-        document.getElementById('downloadPNG').addEventListener('click', async () => {
-            const charName = inputs.name.value || 'character';
-            try {
-                const canvas = await html2canvas(characterPreview, {
-                    backgroundColor: '#000000',
-                    scale: 2,
-                    logging: false,
-                    useCORS: true
-                });
-                
-                canvas.toBlob((blob) => {
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `${charName.replace(/\s+/g, '_')}_profile.png`;
-                    link.click();
-                    URL.revokeObjectURL(url);
-                });
-            } catch (error) {
-                alert('Error generating PNG. Please try again.');
-                console.error(error);
-            }
-        });
-
-        // Download PDF
-        document.getElementById('downloadPDF').addEventListener('click', async () => {
-            const charName = inputs.name.value || 'character';
-            try {
-                const canvas = await html2canvas(characterPreview, {
-                    backgroundColor: '#000000',
-                    scale: 2,
-                    logging: false,
-                    useCORS: true
-                });
-
-                const imgData = canvas.toDataURL('image/png');
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'mm',
-                    format: 'a4'
-                });
-
-                const imgWidth = 190;
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                
-                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-                pdf.save(`${charName.replace(/\s+/g, '_')}_profile.pdf`);
-            } catch (error) {
-                alert('Error generating PDF. Please try again.');
-                console.error(error);
-            }
-        });
-    </script>
-</body>
-</html>
+    // Form inputs to preview
+    const inputs = {
+        name: document.getElementById('charName'),
+        age: document.getElementById('charAge'),
+        gender: document.getElementById('charGender'),
+        occupation: document.getElementById('charOccupation'),
+        personality: document.getElementById('charPersonality'),
+        abilities: document.getElementById('charAbilities'),
+        bio: document.getElementById('charBio')
+    };
+    const previews = {
+        name: document.getElementById('previewName'),
+        age: document.getElementById('previewAge'),
+        gender: document.getElementById('previewGender'),
+        occupation: document.getElementById('previewOccupation'),
+        personality: document.getElement
