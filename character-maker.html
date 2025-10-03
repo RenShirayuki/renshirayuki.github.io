@@ -56,26 +56,6 @@
             font-size: 1rem;
         }
 
-        .back-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            padding: 12px 24px;
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-            text-decoration: none;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            z-index: 100;
-        }
-
-        .back-btn:hover {
-            background: var(--text-primary);
-            color: var(--bg-primary);
-            transform: translateX(-5px);
-        }
-
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -312,12 +292,6 @@
                 grid-template-columns: 1fr;
             }
 
-            .back-btn {
-                position: static;
-                display: inline-block;
-                margin-bottom: 2rem;
-            }
-
             header h1 {
                 font-size: 2rem;
             }
@@ -337,8 +311,6 @@
 </head>
 <body>
     <div class="container">
-        <a href="projects.html" class="back-btn">← Back to Projects</a>
-
         <header>
             <h1>Character Maker</h1>
             <p>Create detailed character profiles</p>
@@ -404,6 +376,27 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Affiliation</label>
+                    <input type="text" id="charAffiliation" placeholder="Enter affiliation (e.g., Organization, Group)">
+                </div>
+
+                <div class="form-group">
+                    <label>Bounty (Optional)</label>
+                    <input type="text" id="charBounty" placeholder="Enter bounty amount (e.g., 100,000,000)">
+                </div>
+
+                <div class="form-group">
+                    <label>Relationship Status</label>
+                    <select id="charRelationship">
+                        <option value="">Select relationship status</option>
+                        <option value="Single">Single</option>
+                        <option value="In a Relationship">In a Relationship</option>
+                        <option value="Married">Married</option>
+                        <option value="It's Complicated">It's Complicated</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label>Background Story</label>
                     <textarea id="charBio" placeholder="Write character's background story..."></textarea>
                 </div>
@@ -455,6 +448,21 @@
                         <div class="info-row">
                             <div class="info-label">Abilities</div>
                             <div class="info-value" id="previewAbilities">-</div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Affiliation</div>
+                            <div class="info-value" id="previewAffiliation">-</div>
+                        </div>
+
+                        <div class="info-row" id="bountyRow" style="display: none;">
+                            <div class="info-label">Bounty</div>
+                            <div class="info-value" id="previewBounty">-</div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Relationship</div>
+                            <div class="info-value" id="previewRelationship">-</div>
                         </div>
 
                         <div class="bio-section">
@@ -570,6 +578,9 @@
             occupation: document.getElementById('charOccupation'),
             personality: document.getElementById('charPersonality'),
             abilities: document.getElementById('charAbilities'),
+            affiliation: document.getElementById('charAffiliation'),
+            bounty: document.getElementById('charBounty'),
+            relationship: document.getElementById('charRelationship'),
             bio: document.getElementById('charBio')
         };
 
@@ -580,12 +591,26 @@
             occupation: document.getElementById('previewOccupation'),
             personality: document.getElementById('previewPersonality'),
             abilities: document.getElementById('previewAbilities'),
+            affiliation: document.getElementById('previewAffiliation'),
+            bounty: document.getElementById('previewBounty'),
+            relationship: document.getElementById('previewRelationship'),
             bio: document.getElementById('previewBio')
         };
+
+        const bountyRow = document.getElementById('bountyRow');
 
         Object.keys(inputs).forEach(key => {
             inputs[key].addEventListener('input', () => {
                 previews[key].textContent = inputs[key].value || '-';
+                
+                // Show/hide bounty row based on input
+                if (key === 'bounty') {
+                    if (inputs[key].value.trim()) {
+                        bountyRow.style.display = 'grid';
+                    } else {
+                        bountyRow.style.display = 'none';
+                    }
+                }
             });
         });
 
@@ -596,6 +621,7 @@
                 Object.values(previews).forEach(preview => preview.textContent = '-');
                 previewImage.innerHTML = '<span class="preview-placeholder">No image uploaded</span>';
                 characterPreview.style.backgroundImage = 'none';
+                bountyRow.style.display = 'none';
                 uploadedImage = null;
                 backgroundImage = null;
                 imageInput.value = '';
