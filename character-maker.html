@@ -346,7 +346,7 @@
 
                 <div class="form-group">
                     <label>Age</label>
-                    <input type="number" id="charAge" placeholder="Enter age">
+                    <input type="text" id="charAge" placeholder="Enter age (e.g., 25, 1000+, Unknown)">
                 </div>
 
                 <div class="form-group">
@@ -361,6 +361,60 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Race</label>
+                    <select id="charRace">
+                        <option value="">Select race</option>
+                        <option value="Abyssal">Abyssal</option>
+                        <option value="AI (Artificial Intelligence)">AI (Artificial Intelligence)</option>
+                        <option value="Alien">Alien</option>
+                        <option value="Angel">Angel</option>
+                        <option value="Android">Android</option>
+                        <option value="Beastkin">Beastkin</option>
+                        <option value="Blood Elf">Blood Elf</option>
+                        <option value="Catfolk">Catfolk</option>
+                        <option value="Celestial">Celestial</option>
+                        <option value="Chimera">Chimera</option>
+                        <option value="Cursed One">Cursed One</option>
+                        <option value="Cyborg">Cyborg</option>
+                        <option value="Dark Elf">Dark Elf</option>
+                        <option value="Demon">Demon</option>
+                        <option value="Dhampir">Dhampir</option>
+                        <option value="Dragon">Dragon</option>
+                        <option value="Dragonkin">Dragonkin</option>
+                        <option value="Draconian">Draconian</option>
+                        <option value="Dwarf">Dwarf</option>
+                        <option value="Elemental">Elemental</option>
+                        <option value="Enhanced Human">Enhanced Human</option>
+                        <option value="Fairy">Fairy</option>
+                        <option value="Fallen Angel">Fallen Angel</option>
+                        <option value="Foxkin">Foxkin</option>
+                        <option value="Giant">Giant</option>
+                        <option value="Goblin">Goblin</option>
+                        <option value="High Elf">High Elf</option>
+                        <option value="Human">Human</option>
+                        <option value="Kitsune">Kitsune</option>
+                        <option value="Lich">Lich</option>
+                        <option value="Machine">Machine</option>
+                        <option value="Mermaid / Merman">Mermaid / Merman</option>
+                        <option value="Mutant">Mutant</option>
+                        <option value="Nekomata">Nekomata</option>
+                        <option value="Orc">Orc</option>
+                        <option value="Parasite">Parasite</option>
+                        <option value="Pixie">Pixie</option>
+                        <option value="Reaper">Reaper</option>
+                        <option value="Shadowborn">Shadowborn</option>
+                        <option value="Shinigami">Shinigami</option>
+                        <option value="Spirit">Spirit</option>
+                        <option value="Troll">Troll</option>
+                        <option value="Vampire">Vampire</option>
+                        <option value="Werewolf">Werewolf</option>
+                        <option value="Wood Elf">Wood Elf</option>
+                        <option value="Wraith">Wraith</option>
+                        <option value="Wyvern">Wyvern</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label>Occupation</label>
                     <input type="text" id="charOccupation" placeholder="Enter occupation">
                 </div>
@@ -371,7 +425,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Abilities/Skills</label>
+                    <label>Skills</label>
                     <input type="text" id="charAbilities" placeholder="Enter special abilities or skills">
                 </div>
 
@@ -393,6 +447,7 @@
                         <option value="In a Relationship">In a Relationship</option>
                         <option value="Married">Married</option>
                         <option value="It's Complicated">It's Complicated</option>
+                        <option value="Unknown">Unknown</option>
                     </select>
                 </div>
 
@@ -436,6 +491,11 @@
                         </div>
 
                         <div class="info-row">
+                            <div class="info-label">Race</div>
+                            <div class="info-value" id="previewRace">-</div>
+                        </div>
+
+                        <div class="info-row">
                             <div class="info-label">Occupation</div>
                             <div class="info-value" id="previewOccupation">-</div>
                         </div>
@@ -446,7 +506,7 @@
                         </div>
 
                         <div class="info-row">
-                            <div class="info-label">Abilities</div>
+                            <div class="info-label">Skills</div>
                             <div class="info-value" id="previewAbilities">-</div>
                         </div>
 
@@ -575,6 +635,7 @@
             name: document.getElementById('charName'),
             age: document.getElementById('charAge'),
             gender: document.getElementById('charGender'),
+            race: document.getElementById('charRace'),
             occupation: document.getElementById('charOccupation'),
             personality: document.getElementById('charPersonality'),
             abilities: document.getElementById('charAbilities'),
@@ -588,6 +649,7 @@
             name: document.getElementById('previewName'),
             age: document.getElementById('previewAge'),
             gender: document.getElementById('previewGender'),
+            race: document.getElementById('previewRace'),
             occupation: document.getElementById('previewOccupation'),
             personality: document.getElementById('previewPersonality'),
             abilities: document.getElementById('previewAbilities'),
