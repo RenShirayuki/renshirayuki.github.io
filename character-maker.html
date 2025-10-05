@@ -456,6 +456,14 @@
                     <textarea id="charBio" placeholder="Write character's background story..."></textarea>
                 </div>
 
+                <div class="form-group">
+                    <label>Text Alignment</label>
+                    <select id="textAlign">
+                        <option value="left">Left</option>
+                        <option value="justify">Justify</option>
+                    </select>
+                </div>
+
                 <div class="action-buttons">
                     <button class="btn" id="resetBtn">Reset</button>
                 </div>
@@ -660,6 +668,13 @@
         };
 
         const bountyRow = document.getElementById('bountyRow');
+        const textAlignSelect = document.getElementById('textAlign');
+        const previewBioElement = document.getElementById('previewBio');
+
+        // Text alignment handler
+        textAlignSelect.addEventListener('change', () => {
+            previewBioElement.style.textAlign = textAlignSelect.value;
+        });
 
         Object.keys(inputs).forEach(key => {
             inputs[key].addEventListener('input', () => {
@@ -684,6 +699,8 @@
                 previewImage.innerHTML = '<span class="preview-placeholder">No image uploaded</span>';
                 characterPreview.style.backgroundImage = 'none';
                 bountyRow.style.display = 'none';
+                previewBioElement.style.textAlign = 'left';
+                textAlignSelect.value = 'left';
                 uploadedImage = null;
                 backgroundImage = null;
                 imageInput.value = '';
